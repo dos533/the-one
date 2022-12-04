@@ -1,0 +1,30 @@
+Scenario.name = MyScenario
+Scenario.endTime = 10000
+Scenario.updateInterval = 0.1
+Scenario.simulateConnections = true
+#Scenario.nrofHostGroups = 0
+MovementModel.worldSize = 1000,1000
+Report.nrofReports = 0
+Events.nrof = 0
+
+Scenario.nrofHostGroups = 2
+
+Group1.groupID = student
+Group1.nrofHosts = 10
+Group1.nrofInterfaces = 1
+Group1.interface1 = studentInterface
+studentInterface.type = SimpleBroadcastInterface
+studentInterface.transmitRange = 20
+studentInterface.transmitSpeed = 100
+Group1.movementModel = RandomWaypoint
+Group1.router = PassiveRouter
+
+Group2.groupID = professor
+Group2.nrofHosts = 10
+Group2.nrofInterfaces = 1
+Group2.interface1 = professorInterface
+professorInterface.type = SimpleBroadcastInterface
+professorInterface.transmitRange = 100
+professorInterface.transmitSpeed = 100
+Group2.movementModel = TimeVariantRwp
+Group2.router = PassiveRouter
