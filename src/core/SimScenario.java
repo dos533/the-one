@@ -13,7 +13,6 @@ import java.util.List;
 
 import movement.MapBasedMovement;
 import movement.MovementModel;
-import movement.ProhibitedWaypointScheduleMovement;
 import movement.map.SimMap;
 import routing.MessageRouter;
 
@@ -386,17 +385,8 @@ public class SimScenario implements Serializable {
 				}
 			}
 
-			//This is absolutely stupid. Who wrote this garbage UI. Why is rendering directly coupled with logic like this?
-			//Why are we using a java engine from 2008
-			//Why is documentation absolutely horrible?
-			//How is this being used and recommended in 2022
-			// rant over
 			if (mmProto instanceof MapBasedMovement) {
 				this.simMap = ((MapBasedMovement)mmProto).getMap();
-			}
-
-			if(mmProto instanceof ProhibitedWaypointScheduleMovement) {
-				this.simMap = ((ProhibitedWaypointScheduleMovement)mmProto).getMap();
 			}
 
 			// creates hosts of ith group
