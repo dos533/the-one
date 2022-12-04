@@ -1,0 +1,32 @@
+Scenario.name = FMI
+Scenario.endTime = 10000
+Scenario.updateInterval = 0.1
+Scenario.simulateConnections = false
+MovementModel.worldSize = 200,220
+Report.nrofReports = 0
+Events.nrof = 0
+
+# Communication Interface
+myInterface.type = SimpleBroadcastInterface
+myInterface.transmitRange = 0
+myInterface.transmitSpeed = 0
+
+Scenario.nrofHostGroups = 1
+Group.nrofHosts = 10
+Group.nrofInterfaces = 0
+Group1.groupID = x
+Group1.nrofHosts = 1
+Group1.movementModel = ProhibitedWaypointScheduleMovement
+## Group1.movementModel = MapBasedMovement
+
+Group1.router = PassiveRouter
+
+
+
+## ProhibitedWaypointScheduleMovement - movement model specific settings
+ProhibitedWaypointScheduleMovement.rwpInvert = true
+ProhibitedWaypointScheduleMovement.nrofMapFiles = 1
+ProhibitedWaypointScheduleMovement.mapFile1 = data/testTwo.wkt
+
+MapBasedMovement.nrofMapFiles = 1
+MapBasedMovement.mapFile1 = data/testTwo.wkt
