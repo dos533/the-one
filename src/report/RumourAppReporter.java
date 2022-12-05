@@ -12,6 +12,7 @@ import core.DTNHost;
 import core.Message;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Reporter for the <code>PingApplication</code>. Counts the number of pings
@@ -24,12 +25,12 @@ public class RumourAppReporter extends Report implements ApplicationListener {
 //	private int pingsSent=0, pingsReceived=0;
 //	private int pongsSent=0, pongsReceived=0;
 	private final ArrayList<Message> rumours;
-	private final ArrayList<Message> received;
+	private final HashMap<String, ArrayList<Message>> received;
 
 	public RumourAppReporter(){
 		super();
 		rumours = new ArrayList<Message>();
-		received = new ArrayList<>();
+		received = new HashMap<>();
 	}
 
 	public void gotEvent(String event, Object params, Application app,
@@ -43,7 +44,10 @@ public class RumourAppReporter extends Report implements ApplicationListener {
 		}
 
 		if (event.equalsIgnoreCase("receivedRumour")) {
-			received.add((Message) params);
+			Message msg = (Message) params;
+			String msgId = msg.toString();
+			if (!received.containsKey(msgId)) received.put(msgId, new ArrayList<>());
+			received.get(msgId).add(msg);
 		}
 
 	}
@@ -76,14 +80,24 @@ public class RumourAppReporter extends Report implements ApplicationListener {
 //			"\nping/pong success prob: " + format(successProb)
 //			;
 
-		ArrayList<Integer> hopCount = new ArrayList<>();
-		String txt = "Rumours created: " + this.rumours.size() + '\n';
+		HashMap<String, ArrayList<Integer>> hopCount = new HashMap<>();
+		String txt;
+
+		txt = "Rumours created: " + this.rumours.size() + '\n';
 		write(txt);
 
 		txt = rumours.toString();
 		write(txt);
 
-		for (Message m: received) hopCount.add(m.getHopCount());
+
+		for (String msgId : received.keySet()) {
+			hopCount.put(msgId, new ArrayList<>());
+			for (Message m: received.get(msgId)){
+				hopCount.get(msgId).add(m.getHopCount());
+			}
+		}
+
+
 		txt = hopCount.toString();
 		write(txt);
 
