@@ -148,6 +148,32 @@ public class Message implements Comparable<Message> {
 	}
 
 	/**
+	 * Print hops in message
+	 */
+	public void printHops(){
+		for(DTNHost node: getHops()){
+			System.out.print(node);
+			System.out.print("->");
+		}
+		System.out.println();
+	}
+
+	/**
+	 * Print hops in message only originating from target node
+	 * @param nodeName Name of the node given by groupID + address
+	 */
+	public void printHops(String nodeName){
+		if (getHops().get(0).toString().equalsIgnoreCase(nodeName)){
+			for(DTNHost node: getHops()){
+				System.out.print(node);
+				System.out.print("->");
+			}
+			System.out.println();
+		}
+	}
+
+
+	/**
 	 * Returns the time to live (minutes) of the message or Integer.MAX_VALUE
 	 * if the TTL is infinite. Returned value can be negative if the TTL has
 	 * passed already.
