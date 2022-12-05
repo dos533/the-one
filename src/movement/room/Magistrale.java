@@ -10,7 +10,7 @@ public class Magistrale extends RoomBase{
 
 
     public Magistrale() {
-        super(RoomType.Magistrale, new Timeframe(300, 1000));
+        super(RoomType.Magistrale, new Timeframe(300, 1000), true);
         roomDoors.put(RoomType.Outside, new Coord(100, 50));
     }
 

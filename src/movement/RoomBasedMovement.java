@@ -2,6 +2,7 @@ package movement;
 
 import core.Coord;
 import core.Settings;
+import core.SimClock;
 import movement.room.RoomBase;
 import util.PolygonUtils;
 
@@ -15,6 +16,8 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
     private RoomBase _nextRoom;
 
     private boolean _isEnabled;
+
+    private double _nextMoveTime = 0;
 
     //TODO add schedule
     //private Schedule _schedule
@@ -44,34 +47,40 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
             this._isEnabled = false;
         }
 
-        RoomBase previousRoom = null;
-        if(_currentRoom != null) {
-            previousRoom = _currentRoom;
+        final double currentTime = SimClock.getTime();
+
+        //dont move if we are waiting in the current room
+        if(_nextMoveTime > currentTime) {
+            return null;
         }
+
+        RoomBase previousRoom = _currentRoom;
         _currentRoom = _nextRoom;
 
         //TODO get next room based on schedule at some point
         //for now just select a random neighboring room
         RoomBase nextRoom = _currentRoom.GetRandomNeighboringRoom();
 
-        System.out.println("next room: " + nextRoom.GetRoomType());
-
-        //Path p = new Path(generateSpeed());
-        Path p = new Path(0.1);
+        Path p = new Path(generateSpeed());
         p.addWaypoint(_lastWaypoint.clone());
 
-        if(previousRoom != null && nextRoom.GetRoomType() != previousRoom.GetRoomType()) {
-            p.addWaypoint(nextRoom.GetDoorToRoom(_currentRoom.GetRoomType()));
+        System.out.println(_currentRoom.GetRoomType() + " -> " + nextRoom.GetRoomType() );
+
+        if(nextRoom.GetRoomType() != _currentRoom.GetRoomType()) {
+            var doorCoord = _currentRoom.GetDoorToRoom(nextRoom.GetRoomType());
+            p.addWaypoint(doorCoord.clone());
         }
 
-        if(!nextRoom.GetDoRandomWalk() && PolygonUtils.IsInside(nextRoom.GetPolygon(), this._lastWaypoint)) {
+        //TODO do this via schedule instead
+        _nextMoveTime = currentTime + nextRoom.GetTimeInRoom().Random();
+
+        if(!nextRoom.GetDoRandomWalk() && nextRoom.GetRoomType() == _currentRoom.GetRoomType()) {
+            _nextRoom = nextRoom;
             return null;
         }
-
         Coord c = PolygonUtils.RandomPointInside(nextRoom.GetPolygon());
         p.addWaypoint(c);
         _lastWaypoint = c;
-        System.out.println("Moving to " + nextRoom.GetRoomType());
         _nextRoom = nextRoom;
 
         return p;
@@ -84,7 +93,7 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
             System.out.println("spawning at subway");
             _lastWaypoint = PolygonUtils.RandomPointInside(RoomBase.AllRooms.get(RoomBase.RoomType.Subway).GetPolygon());
             _currentRoom = RoomBase.AllRooms.get(RoomBase.RoomType.Subway);
-            _nextRoom = RoomBase.AllRooms.get(RoomBase.RoomType.Outside);
+            _nextRoom = RoomBase.AllRooms.get(RoomBase.RoomType.Subway);
         }
 
         return _lastWaypoint.clone();

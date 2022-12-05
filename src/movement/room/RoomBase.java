@@ -4,10 +4,7 @@ import core.Coord;
 import util.PolygonUtils;
 import util.Timeframe;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -63,13 +60,15 @@ public abstract class RoomBase {
         Random rand = new Random();
         //this looks like hacky java... but im pretty sure its correct
         RoomType[] neighbors = roomDoors.keySet().toArray(new RoomType[0]);
-        StringBuilder sb = new StringBuilder();
-        for(RoomType t : neighbors){
-            sb.append(t);
-        }
-        System.out.println(sb.toString());
 
-        RoomType randomType = neighbors[rand.nextInt(0, roomDoors.size())];
+        //create array containing self
+        RoomType[] selfIncludedNeighbors = new RoomType[neighbors.length + 1];
+        for(int i = 0; i < neighbors.length; i++) {
+            selfIncludedNeighbors[i] = neighbors[i];
+        }
+        selfIncludedNeighbors[neighbors.length] = _type;
+
+        RoomType randomType = selfIncludedNeighbors[rand.nextInt(0, selfIncludedNeighbors.length)];
         return RoomBase.AllRooms.get(randomType);
     }
 

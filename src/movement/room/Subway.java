@@ -9,7 +9,7 @@ import java.util.List;
 public class Subway extends RoomBase{
 
     public Subway() {
-        super(RoomType.Subway, new Timeframe(300, 1000));
+        super(RoomType.Subway, new Timeframe(300, 1000), false);
         roomDoors.put(RoomType.Outside, new Coord(180, 100));
     }
 
