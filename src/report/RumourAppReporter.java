@@ -27,10 +27,25 @@ public class RumourAppReporter extends Report implements ApplicationListener {
 	private final ArrayList<Message> rumours;
 	private final HashMap<String, ArrayList<Message>> received;
 
+	private final HashMap<String, HashMap<String, Message>> receivedNoDuplicate;
+
 	public RumourAppReporter(){
 		super();
 		rumours = new ArrayList<Message>();
 		received = new HashMap<>();
+		receivedNoDuplicate = new HashMap<>();
+	}
+
+	public void addRemoveDuplicate(Message msg){
+		String msgId = msg.toString();
+		String hops = msg.hopsToString(msg.getHopCount());
+		receivedNoDuplicate.get(msgId).put(hops, msg);
+
+		if (msg.getHopCount() > 1){
+			String hopsLast = msg.hopsToString(msg.getHopCount()-1);
+			receivedNoDuplicate.get(msgId).remove(hopsLast);
+		}
+
 	}
 
 	public void gotEvent(String event, Object params, Application app,
@@ -47,7 +62,13 @@ public class RumourAppReporter extends Report implements ApplicationListener {
 			Message msg = (Message) params;
 			String msgId = msg.toString();
 			if (!received.containsKey(msgId)) received.put(msgId, new ArrayList<>());
+			if (!receivedNoDuplicate.containsKey(msgId)) receivedNoDuplicate.put(msgId, new HashMap<>());
+
+			// Add message to received messages
 			received.get(msgId).add(msg);
+			// Add message and remove duplicates
+			addRemoveDuplicate(msg);
+
 		}
 
 	}
@@ -89,15 +110,22 @@ public class RumourAppReporter extends Report implements ApplicationListener {
 		txt = rumours.toString();
 		write(txt);
 
-
 		for (String msgId : received.keySet()) {
 			hopCount.put(msgId, new ArrayList<>());
 			for (Message m: received.get(msgId)){
 				hopCount.get(msgId).add(m.getHopCount());
 			}
 		}
+		txt = hopCount.toString();
+		write(txt);
 
-
+		for (String msgId : received.keySet()) {
+			hopCount.remove(msgId);
+			hopCount.put(msgId, new ArrayList<>());
+			for (String hops: receivedNoDuplicate.get(msgId).keySet()){
+				hopCount.get(msgId).add(receivedNoDuplicate.get(msgId).get(hops).getHopCount());
+			}
+		}
 		txt = hopCount.toString();
 		write(txt);
 

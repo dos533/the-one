@@ -150,6 +150,19 @@ public class Message implements Comparable<Message> {
 	/**
 	 * Print hops in message
 	 */
+	public String hopsToString(int i){
+		String txt = "";
+		i = Integer.min(i, getHopCount());
+		for(int j=0; j < i; j++){
+			txt += this.path.get(j).toString() + "->";
+		}
+		return txt;
+	}
+
+
+	/**
+	 * Print hops in message
+	 */
 	public void printHops(){
 		for(DTNHost node: getHops()){
 			System.out.print(node);
