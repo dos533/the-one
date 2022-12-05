@@ -117,6 +117,9 @@ public class RumourApplication extends Application {
 		if (type==null) return msg; // Not a ping/pong message
 
 		if (type.equalsIgnoreCase("rumour")){
+
+			super.sendEventToListeners("receivedRumour", msg, host);
+
 			double real = (double) msg.getProperty("real");	// Realistic or not (given as decimal)
 			double conf = getConfidence(msg, host);	// Confidence of the message received by the sender
 			double chatProb = 1; // TODO : probability to talk about rumour (based on schedule)
