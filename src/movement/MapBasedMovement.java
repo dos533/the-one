@@ -179,6 +179,8 @@ public class MapBasedMovement extends MovementModel implements SwitchableMovemen
 
 	@Override
 	public Path getPath() {
+		return null;
+		/* I just need you to render the map atm....
 		Path p = new Path(generateSpeed());
 		MapNode curNode = lastMapNode;
 		MapNode prevNode = lastMapNode;
@@ -230,6 +232,7 @@ public class MapBasedMovement extends MovementModel implements SwitchableMovemen
 		lastMapNode = curNode;
 
 		return p;
+		 */
 	}
 
 	/**
@@ -300,9 +303,12 @@ public class MapBasedMovement extends MovementModel implements SwitchableMovemen
 		simMap = r.getMap();
 		checkMapConnectedness(simMap.getNodes());
 		// mirrors the map (y' = -y) and moves its upper left corner to origo
+		/* Dont :)
 		simMap.mirror();
 		Coord offset = simMap.getMinBound().clone();
 		simMap.translate(-offset.getX(), -offset.getY());
+		*/
+
 		checkCoordValidity(simMap.getNodes());
 
 		cachedMap = simMap;

@@ -305,15 +305,24 @@ public class WKTReader {
 		lineScan = new Scanner(line);
 		lineScan.useDelimiter(",");
 
+		StringBuilder sb = new StringBuilder();
 		while (lineScan.hasNext()) {
 			tupleScan = new Scanner(lineScan.next());
 			x = Double.parseDouble(tupleScan.next());
 			y = Double.parseDouble(tupleScan.next());
+			//x -= 11.66;
+			//x *= 100000;
+			sb.append(x);
+			//y -= 48.26;
+			//y *= 100000;
+			sb.append(" ");
+			sb.append(y);
+			sb.append(", ");
 			c = new Coord(x,y);
 
 			coords.add(c);
 		}
-
+		//System.out.println(sb.toString());
 		return coords;
 	}
 
