@@ -126,7 +126,12 @@ public class RumourApplication extends Application {
 
 			double sendingProb = getSendProbability(conf, real, chatProb);
 
-			msg.printHops("r99");
+//			if (host.getAddress()==99){
+//				System.out.print(host.getAddress());
+//				System.out.println(host.getMessageCollection());
+//			}
+
+//			msg.printHops("r99");
 
 			if (sendingProb >= rng.nextDouble()){
 				return msg;

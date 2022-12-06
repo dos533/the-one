@@ -104,7 +104,7 @@ public class RumourAppReporter extends Report implements ApplicationListener {
 		HashMap<String, ArrayList<Integer>> hopCount = new HashMap<>();
 		String txt;
 
-		txt = "Rumours created: " + this.rumours.size() + '\n';
+		txt = "Rumours created: " + this.rumours.size();
 		write(txt);
 
 		txt = rumours.toString();

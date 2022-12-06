@@ -32,7 +32,7 @@ Scenario.nrofHostGroups = 6
 
 # common settings for all groups
 Group.movementModel = ClusterMovement
-Group.router = EpidemicRouter
+Group.router = RumourRouter
 Group.bufferSize = 5M
 Group.waitTime = 0, 120
 #All nodes have the firstinterface inteface
