@@ -14,7 +14,7 @@ public class Schedule {
 
     // time in hours
     private static final int START_TIME_MIN = 8;
-    private static final int START_TIME_MAX = 16;
+    private static final int START_TIME_MAX = 18;
 
     ArrayList<ScheduleSlot> slots;
     RoomBase.RoomType exitRoom;
@@ -27,8 +27,9 @@ public class Schedule {
 
         Random rng = new Random(s.getInt("RNG_SEED"));
 
+        var nrLectures = RoomBase.LectureRooms.size() * 4;
         // this might never stop if generating non-overlapping lectures is not possible
-        generateNextLecture: while (lectures.size() < 20) {
+        generateNextLecture: while (lectures.size() < nrLectures) {
 
             double time = rng.nextInt(START_TIME_MAX - START_TIME_MIN + 1) + START_TIME_MIN;
             RoomBase.RoomType room = RoomBase.GetRandomLectureRoom();
@@ -39,13 +40,16 @@ public class Schedule {
             for (int j = 0; j < lectures.size(); j++) {
                 var l = lectures.get(j);
                 // skip if overlaps with other lecture in the same room
-                if (l.room == room && time + duration >= l.time && time <= l.time + l.duration) {
+                if (l.room == room && time + duration > l.time && time < l.time + l.duration) {
                     continue generateNextLecture;
                 }
             }
 
             lectures.add(new Lecture(time, duration, room));
+
         }
+
+        System.out.println("GENERATED LECTURES "+lectures);
     }
 
     public Schedule(ArrayList<ScheduleSlot> slots) {
@@ -125,6 +129,8 @@ public class Schedule {
             i++;
         }
 
+        System.out.println("GENERATED SCHEDULE: "+slots);
+
         return new Schedule(slots);
     }
 
@@ -177,6 +183,15 @@ class Lecture {
         this.duration = duration;
         this.room = room;
     }
+
+    @Override
+    public String toString() {
+        return "Lecture{" +
+                "time=" + time +
+                ", duration=" + duration +
+                ", room=" + room +
+                '}';
+    }
 }
 
 class ScheduleSlot {
@@ -189,5 +204,14 @@ class ScheduleSlot {
         this.time = time;
         this.duration = duration;
         this.room = room;
+    }
+
+    @Override
+    public String toString() {
+        return "ScheduleSlot{" +
+                "time=" + time +
+                ", duration=" + duration +
+                ", room=" + room +
+                '}';
     }
 }

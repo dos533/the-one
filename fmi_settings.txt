@@ -22,9 +22,11 @@ Group1.router = PassiveRouter
 
 
 Group2.groupID = x
-Group2.nrofHosts = 1
+Group2.nrofHosts = 5
 Group2.router = PassiveRouter
 Group2.movementModel = RoomBasedMovement
 
 MapBasedMovement.nrofMapFiles = 1
 MapBasedMovement.mapFile1 = data/testTwo.wkt
+
+Schedule.RNG_SEED = 1

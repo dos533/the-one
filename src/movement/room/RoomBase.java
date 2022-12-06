@@ -13,7 +13,9 @@ public abstract class RoomBase {
     public static Map<RoomType, RoomBase> AllRooms = Stream.of(new Object[][]{
             {RoomType.Subway, new Subway()},
             {RoomType.Outside, new Outside()},
-            {RoomType.Magistrale, new Magistrale()}
+            {RoomType.Magistrale, new Magistrale()},
+            {RoomType.LectureHall01, new Lecture1()},
+            {RoomType.Cafe, new Cafe()},
     }).collect(Collectors.toMap(data -> (RoomType) data[0], data -> (RoomBase) data[1]));
 
     private static Random rand = new Random();
@@ -123,11 +125,11 @@ public abstract class RoomBase {
 
 
     public static RoomType GetRandomLunchOption() {
-        return LunchOptions.get(rand.nextInt(LunchOptions.size() - 1));
+        return LunchOptions.get(rand.nextInt(LunchOptions.size()));
     }
 
     public static RoomType GetRandomLectureRoom() {
-        return LectureRooms.get(rand.nextInt(LectureRooms.size()) - 1);
+        return LectureRooms.get(rand.nextInt(LectureRooms.size()));
     }
 
     public static RoomType GetRandomGatheringRoom() {
@@ -135,7 +137,7 @@ public abstract class RoomBase {
     }
 
     public static RoomType GetRandomEntranceAndExitOption() {
-        return EntranceAndExitOptions.get(EntranceAndExitOptions.size() - 1);
+        return EntranceAndExitOptions.get(rand.nextInt(EntranceAndExitOptions.size()));
     }
 
 }

@@ -8,6 +8,7 @@ import movement.room.RoomBase;
 import movement.schedule.Schedule;
 import util.PolygonUtils;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RoomBasedMovement extends MovementModel implements SwitchableMovement{
