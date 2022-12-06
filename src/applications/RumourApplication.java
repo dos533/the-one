@@ -12,30 +12,30 @@ import java.util.HashMap;
 import java.util.Random;
 
 /**
- * Simple ping application to demonstrate the application support. The
- * application can be configured to send pings with a fixed interval or to only
- * answer to pings it receives. When the application receives a ping it sends
- * a pong message in response.
+ * Simple rumour application.
+ * Application creates rumour in fixed interval
+ * Received rumours are ignored or forwarded
+ * to demonstrate the application support. The
  *
- * The corresponding <code>PingAppReporter</code> class can be used to record
+ * The corresponding <code>RumourAppReporter</code> class can be used to record
  * information about the application behavior.
  *
  * @see RumourAppReporter
- * @author teemuk
+ * @author suren3141
  */
 public class RumourApplication extends Application {
-	/** Run in passive mode - don't generate pings but respond */
-	public static final String PING_PASSIVE = "passive";
-	/** Ping generation interval */
-	public static final String PING_INTERVAL = "interval";
+	/** Run in passive mode - don't create rumours, only forward them */
+	public static final String RUMOUR_PASSIVE = "passive";
+	/** message generation interval */
+	public static final String MSG_INTERVAL = "interval";
 	/** Ping interval offset - avoids synchronization of ping sending */
 	public static final String PING_OFFSET = "offset";
 	/** Destination address range - inclusive lower, exclusive upper */
-	public static final String PING_DEST_RANGE = "destinationRange";
+	public static final String MSG_DEST_RANGE = "destinationRange";
 	/** Seed for the app's random number generator */
 	public static final String PING_SEED = "seed";
 	/** Size of the ping message */
-	public static final String PING_PING_SIZE = "pingSize";
+	public static final String MSG_SIZE = "msgSize";
 	/** Threshold of believing the rumour (in percentage) */
 	public static final String RUMOUR_THRESHOLD = "threshold";
 
@@ -49,23 +49,23 @@ public class RumourApplication extends Application {
 	private int		seed = 0;
 	private int		destMin=0;
 	private int		destMax=1;
-	private int		pingSize=1;
+	private int msgSize =1;
 	private Random	rng;
 	private double threshold;
 	private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> msgReceived;
 
 
 	/**
-	 * Creates a new ping application with the given settings.
+	 * Creates a new rumour application with the given settings.
 	 *
 	 * @param s	Settings to use for initializing the application.
 	 */
 	public RumourApplication(Settings s) {
-		if (s.contains(PING_PASSIVE)){
-			this.passive = s.getBoolean(PING_PASSIVE);
+		if (s.contains(RUMOUR_PASSIVE)){
+			this.passive = s.getBoolean(RUMOUR_PASSIVE);
 		}
-		if (s.contains(PING_INTERVAL)){
-			this.interval = s.getDouble(PING_INTERVAL);
+		if (s.contains(MSG_INTERVAL)){
+			this.interval = s.getDouble(MSG_INTERVAL);
 		}
 		if (s.contains(PING_OFFSET)){
 			this.lastRumourCreated = s.getDouble(PING_OFFSET);
@@ -73,14 +73,14 @@ public class RumourApplication extends Application {
 		if (s.contains(PING_SEED)){
 			this.seed = s.getInt(PING_SEED);
 		}
-		if (s.contains(PING_PING_SIZE)) {
-			this.pingSize = s.getInt(PING_PING_SIZE);
+		if (s.contains(MSG_SIZE)) {
+			this.msgSize = s.getInt(MSG_SIZE);
 		}
 		if (s.contains(RUMOUR_THRESHOLD)) {
 			this.threshold = s.getDouble(RUMOUR_THRESHOLD);
 		}
-		if (s.contains(PING_DEST_RANGE)){
-			int[] destination = s.getCsvInts(PING_DEST_RANGE,2);
+		if (s.contains(MSG_DEST_RANGE)){
+			int[] destination = s.getCsvInts(MSG_DEST_RANGE,2);
 			this.destMin = destination[0];
 			this.destMax = destination[1];
 		}
@@ -104,7 +104,7 @@ public class RumourApplication extends Application {
 		this.destMax = a.getDestMax();
 		this.destMin = a.getDestMin();
 		this.seed = a.getSeed();
-		this.pingSize = a.getPingSize();
+		this.msgSize = a.getMsgSize();
 		this.rng = new Random(this.seed);
 		this.msgReceived = (HashMap<String, HashMap<String, HashMap<Integer, Integer>>>) a.msgReceived.clone();
 	}
@@ -125,8 +125,8 @@ public class RumourApplication extends Application {
 	}
 
 	/**
-	 * Handles an incoming message. If the message is a ping message replies
-	 * with a pong message. Generates events for ping and pong messages.
+	 * Handles an incoming message.
+	 * If the message is a rumour message ignore of forward
 	 *
 	 * @param msg	message received by the router
 	 * @param host	host to which the application instance is attached
@@ -134,7 +134,7 @@ public class RumourApplication extends Application {
 	@Override
 	public Message handle(Message msg, DTNHost host) {
 		String type = (String)msg.getProperty("type");
-		if (type==null) return msg; // Not a ping/pong message
+		if (type==null) return msg;
 
 		if (type.equalsIgnoreCase("rumour")){
 			super.sendEventToListeners("receivedRumour", msg, host);
@@ -173,8 +173,9 @@ public class RumourApplication extends Application {
 		int destaddr = 0;
 		if (destMax == destMin) {
 			destaddr = destMin;
+		}else{
+			destaddr = destMin + rng.nextInt(destMax - destMin);
 		}
-		destaddr = destMin + rng.nextInt(destMax - destMin);
 		World w = SimScenario.getInstance().getWorld();
 		return w.getNodeByAddress(destaddr);
 	}
@@ -185,7 +186,7 @@ public class RumourApplication extends Application {
 	}
 
 	/**
-	 * Sends a ping packet if this is an active application instance.
+	 * Sends a msg packet if this is an active application instance.
 	 *
 	 * @param host to which the application instance is attached
 	 */
@@ -196,11 +197,10 @@ public class RumourApplication extends Application {
 
 		if (curTime - this.lastRumourCreated >= this.interval && curTime < 100){
 			// Rumour created only in the first few tics
-			// TODO : Change randomHost to fixed unreachable host (0, 0)
 			// TODO : Change initial confience based on type of rumour
 			Message m = new Message(host, randomHost(),
 					SimClock.getIntTime() + "-" + host.getAddress(),
-					getPingSize());
+					getMsgSize());
 			m.addProperty("type", "rumour");
 			m.addProperty("real", 1.0);
 			m.setAppID(APP_ID);
@@ -318,17 +318,17 @@ public class RumourApplication extends Application {
 	}
 
 	/**
-	 * @return the pingSize
+	 * @return the msgSize
 	 */
-	public int getPingSize() {
-		return pingSize;
+	public int getMsgSize() {
+		return msgSize;
 	}
 
 	/**
-	 * @param pingSize the pingSize to set
+	 * @param msgSize the msgSize to set
 	 */
-	public void setPingSize(int pingSize) {
-		this.pingSize = pingSize;
+	public void setMsgSize(int msgSize) {
+		this.msgSize = msgSize;
 	}
 
 }

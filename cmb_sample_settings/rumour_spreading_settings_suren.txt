@@ -23,9 +23,8 @@ myinterface.transmitRange = 20
 # Define new application
 rumourApp.type = RumourApplication
 rumourApp.interval = 50
-rumourApp.destinationRange = 0,125
-rumourApp.pingSize = 5
-rumourApp.pongSize = 5
+rumourApp.destinationRange = 0,0
+rumourApp.msgSize = 5
 rumourApp.passive = false
 
 Scenario.nrofHostGroups = 6
@@ -46,7 +45,7 @@ Group.nrofHosts = 40
 # Group.nrofApplications = 0
 
 
-# Set Ping app for all nodes
+# Set app for all nodes
 Group.nrofApplications = 1
 Group.application1 = rumourApp
 
