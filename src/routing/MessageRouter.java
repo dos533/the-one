@@ -159,6 +159,10 @@ public abstract class MessageRouter {
 		this.host = host;
 	}
 
+	protected List<MessageListener> getmListeners(){
+		return this.mListeners;
+	}
+
 	/**
 	 * Copy-constructor.
 	 * @param r Router to copy the settings from.
