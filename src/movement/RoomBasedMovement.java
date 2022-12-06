@@ -22,6 +22,11 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
     //TODO add schedule
     //private Schedule _schedule
 
+
+    public RoomBase.RoomType GetCurrentRoom() {
+        return _currentRoom.GetRoomType();
+    }
+
     private boolean _scheduleFinished = false;
 
     public RoomBasedMovement(Settings settings) {
