@@ -1,0 +1,62 @@
+# entity type test
+
+# Scenario Settings
+Scenario.name = ManyEntity
+Scenario.endTime = 43k
+Scenario.updateInterval = 0.1
+Scenario.simulateConnections = true
+MovementModel.worldSize = 1000,1000
+Events.nrof = 0
+
+# Communication Interface
+myInterface.type = SimpleBroadcastInterface
+myInterface.transmitRange = 0
+myInterface.transmitSpeed = 0
+
+# Groups
+Scenario.nrofHostGroups = 5
+
+Group1.groupID = professor
+Group1.nrofHosts = 1
+Group1.nrofInterfaces = 1
+Group1.interface1 = myInterface
+Group1.movementModel = ActivityPeriodRwp
+Group1.rwpActivePeriod = 0, 1
+Group1.router = PassiveRouter
+
+Group2.groupID = student
+Group2.nrofHosts = 10
+Group2.nrofInterfaces = 1
+Group2.interface1 = myInterface
+Group2.movementModel = CafeMovement
+Group2.rwpActivePeriod = 3500, 50000
+Group2.router = PassiveRouter
+
+Group3.groupID = cleaner
+Group3.nrofHosts = 10
+Group3.nrofInterfaces = 1
+Group3.interface1 = myInterface
+Group3.movementModel = CafeMovement
+Group3.rwpActivePeriod = 3500, 50000
+Group3.router = PassiveRouter
+
+Group4.groupID = barista
+Group4.nrofHosts = 10
+Group4.nrofInterfaces = 1
+Group4.interface1 = myInterface
+Group4.movementModel = CafeMovement
+Group4.rwpActivePeriod = 3500, 50000
+Group4.router = PassiveRouter
+
+Group5.groupID = visitor
+Group5.nrofHosts = 10
+Group5.nrofInterfaces = 1
+Group5.interface1 = myInterface
+Group5.movementModel = CafeMovement
+Group5.rwpActivePeriod = 3500, 50000
+Group5.router = PassiveRouter
+
+# Reports
+Report.nrofReports = 0
+
+Report.reportDir = reports
