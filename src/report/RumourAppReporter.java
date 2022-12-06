@@ -68,7 +68,6 @@ public class RumourAppReporter extends Report implements ApplicationListener {
 			received.get(msgId).add(msg);
 			// Add message and remove duplicates
 			addRemoveDuplicate(msg);
-
 		}
 
 	}

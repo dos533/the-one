@@ -8,6 +8,7 @@ package applications;
 import core.*;
 import report.RumourAppReporter;
 
+import java.util.HashMap;
 import java.util.Random;
 
 /**
@@ -35,8 +36,8 @@ public class RumourApplication extends Application {
 	public static final String PING_SEED = "seed";
 	/** Size of the ping message */
 	public static final String PING_PING_SIZE = "pingSize";
-	/** Size of the pong message */
-	public static final String PING_PONG_SIZE = "pongSize";
+	/** Threshold of believing the rumour (in percentage) */
+	public static final String RUMOUR_THRESHOLD = "threshold";
 
 	/** Application ID */
 	public static final String APP_ID = "RumourApplication";
@@ -49,8 +50,10 @@ public class RumourApplication extends Application {
 	private int		destMin=0;
 	private int		destMax=1;
 	private int		pingSize=1;
-	private int		pongSize=1;
 	private Random	rng;
+	private double threshold;
+	private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> msgReceived;
+
 
 	/**
 	 * Creates a new ping application with the given settings.
@@ -73,8 +76,8 @@ public class RumourApplication extends Application {
 		if (s.contains(PING_PING_SIZE)) {
 			this.pingSize = s.getInt(PING_PING_SIZE);
 		}
-		if (s.contains(PING_PONG_SIZE)) {
-			this.pongSize = s.getInt(PING_PONG_SIZE);
+		if (s.contains(RUMOUR_THRESHOLD)) {
+			this.threshold = s.getDouble(RUMOUR_THRESHOLD);
 		}
 		if (s.contains(PING_DEST_RANGE)){
 			int[] destination = s.getCsvInts(PING_DEST_RANGE,2);
@@ -84,6 +87,8 @@ public class RumourApplication extends Application {
 
 		rng = new Random(this.seed);
 		super.setAppID(APP_ID);
+
+		msgReceived = new HashMap<>();
 	}
 
 	/**
@@ -99,9 +104,24 @@ public class RumourApplication extends Application {
 		this.destMax = a.getDestMax();
 		this.destMin = a.getDestMin();
 		this.seed = a.getSeed();
-		this.pongSize = a.getPongSize();
 		this.pingSize = a.getPingSize();
 		this.rng = new Random(this.seed);
+		this.msgReceived = (HashMap<String, HashMap<String, HashMap<Integer, Integer>>>) a.msgReceived.clone();
+	}
+
+	private void addReceivedMessage(Message msg, DTNHost host){
+		DTNHost from = msg.getLastHop();
+		String msgID = msg.getId();
+		int val;
+
+		if (!msgReceived.containsKey(msgID)) msgReceived.put(msgID, new HashMap<>());
+		if (!msgReceived.get(msgID).containsKey(from.groupId)) msgReceived.get(msgID).put(from.groupId, new HashMap<>());
+		if (msgReceived.get(msgID).get(from.groupId).containsKey(from.getAddress())) {
+			val = msgReceived.get(msgID).get(from.groupId).get(from.getAddress()) + 1;
+		}else{
+			val = 1;
+		}
+		msgReceived.get(msgID).get(from.groupId).put(from.getAddress(), val);
 	}
 
 	/**
@@ -117,23 +137,22 @@ public class RumourApplication extends Application {
 		if (type==null) return msg; // Not a ping/pong message
 
 		if (type.equalsIgnoreCase("rumour")){
-
 			super.sendEventToListeners("receivedRumour", msg, host);
 
-			double real = (double) msg.getProperty("real");	// Realistic or not (given as decimal)
-			double conf = getConfidence(msg, host);	// Confidence of the message received by the sender
-			double chatProb = 1; // TODO : probability to talk about rumour (based on schedule)
+			addReceivedMessage(msg, host);
 
-			double sendingProb = getSendProbability(conf, real, chatProb);
+			double real = (double) msg.getProperty("real");	// Realistic or not (given as percentage)
+			double infectProb = getConfidence(msg, host, real);	// Confidence of the message received by the sender
 
-//			if (host.getAddress()==99){
-//				System.out.print(host.getAddress());
-//				System.out.println(host.getMessageCollection());
-//			}
+			if (host.getAddress()==99){
+				System.out.print(host.getAddress());
+				System.out.println(host.getMessageCollection());
+				System.out.println(this.msgReceived.toString());
+			}
 
-			msg.printHops("r99");
+//			msg.printHops("r99");
 
-			if (sendingProb >= rng.nextDouble()){
+			if (infectProb >= threshold){
 				return msg;
 			}
 			else{
@@ -197,33 +216,22 @@ public class RumourApplication extends Application {
 	/**
 	 * @param msg the message
 	 * @param host host to which the application is attached
+	 * @param real Realistic or not (given as percentage)
 	 * @return the confidence of the message
 	 */
-	public double getConfidence(Message msg, DTNHost host){
+	public double getConfidence(Message msg, DTNHost host, double real){
 		// TODO : return confidence of message based on sender, message, path
+
 		double conf = 1;
 
-		DTNHost from = msg.getFrom();
-
-		if (from.groupId.equalsIgnoreCase(host.groupId)){
-			// TODO : Improve confidence if sender and receiver from same group
-		}
+//		DTNHost from = msg.getLastHop();
+//
+//		if (from.groupId.equalsIgnoreCase(host.groupId)){
+//			// TODO : Improve confidence if sender and receiver from same group
+//		}
 
 		return conf;
 	}
-
-	/**
-	 * @param conf confidence of the message
-	 * @param real realistic or not (given as a decimal)
-	 * @param chatProb probability to talk about rumour (based on schedule)
-	 * @return the confidence of the message
-	 */
-	public double getSendProbability(double conf, double real, double chatProb){
-		// TODO : return probability of sending the message
-		double prob = 1;
-		return prob;
-	}
-
 
 	/**
 	 * @return the lastRumourCreated
@@ -307,20 +315,6 @@ public class RumourApplication extends Application {
 	 */
 	public void setSeed(int seed) {
 		this.seed = seed;
-	}
-
-	/**
-	 * @return the pongSize
-	 */
-	public int getPongSize() {
-		return pongSize;
-	}
-
-	/**
-	 * @param pongSize the pongSize to set
-	 */
-	public void setPongSize(int pongSize) {
-		this.pongSize = pongSize;
 	}
 
 	/**

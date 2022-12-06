@@ -132,6 +132,13 @@ public class Message implements Comparable<Message> {
 	}
 
 	/**
+	 * Returns the last node on the list of nodes this message has passed
+	 * @return Last node before the receiving node
+	 */
+	public DTNHost getLastHop() {return this.path.get(getHopCount()-1);}
+
+
+	/**
 	 * Returns a list of nodes this message has passed so far
 	 * @return The list as vector
 	 */

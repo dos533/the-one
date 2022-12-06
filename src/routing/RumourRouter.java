@@ -6,6 +6,8 @@ package routing;
 
 import core.*;
 
+import java.util.Random;
+
 /**
  * Rumuor message router
  * TODO : Model buffer
@@ -13,7 +15,9 @@ import core.*;
  * with drop-oldest buffer and only single transferring
  * connections at a time.
  */
-public class RumourRouter extends EpidemicRouter {
+public class RumourRouter extends ActiveRouter {
+
+	private Random rng;
 
 	/**
 	 * Constructor. Creates a new message router based on the settings in
@@ -22,6 +26,7 @@ public class RumourRouter extends EpidemicRouter {
 	 */
 	public RumourRouter(Settings s) {
 		super(s);
+		rng = new Random();
 		//TODO: read&use epidemic router specific settings (if any)
 	}
 
@@ -31,6 +36,7 @@ public class RumourRouter extends EpidemicRouter {
 	 */
 	protected RumourRouter(RumourRouter r) {
 		super(r);
+		rng = new Random();
 		//TODO: copy epidemic settings here (if any)
 	}
 
@@ -39,6 +45,36 @@ public class RumourRouter extends EpidemicRouter {
 		return new RumourRouter(this);
 	}
 
+	@Override
+	public void update() {
+		super.update();
+		if (isTransferring() || !canStartTransfer()) {
+			return; // transferring, don't try other connections yet
+		}
+
+		// Try first the messages that can be delivered to final recipient
+		if (exchangeDeliverableMessages() != null) {
+			return; // started a transfer, don't try others (yet)
+		}
+
+		double chatProb = getSendProbability();
+		if (rng.nextDouble() <= chatProb) {
+			// then try any/all message to any/all connection
+			this.tryAllMessagesToAllConnections();
+		}
+	}
+
+
+	/**
+	 * How to handle incoming messages after it has been received
+	 *
+	 * This method should be called (on the receiving host) after a message
+	 * was successfully transferred. The transferred message is put to the
+	 * message buffer unless this host is the final recipient of the message.
+	 * @param id Id of the transferred message
+	 * @param from Host the message was from (previous hop)
+	 * @return The message that this host received
+	 */
 	@Override
 	public Message messageTransferred(String id, DTNHost from) {
 		Message incoming = removeFromIncomingBuffer(id, from);
@@ -91,6 +127,8 @@ public class RumourRouter extends EpidemicRouter {
 	}
 
 	/**
+	 * Handle incoming messages when it's being received (accept or no)??
+	 *
 	 * Checks if router "wants" to start receiving message (i.e. router
 	 * isn't transferring, doesn't have the message and has room for it).
 	 * @param m The message to check
@@ -134,6 +172,17 @@ public class RumourRouter extends EpidemicRouter {
 
 		return RCV_OK;
 	}
+
+
+	/**
+	 * @return the probability of sending the message based on schedule
+	 */
+	public double getSendProbability(){
+		// TODO : return probability of sending the message
+		double chatProb = 1; // TODO : probability to talk about rumour (based on schedule)
+		return chatProb;
+	}
+
 
 
 
