@@ -1,9 +1,11 @@
 package movement;
 
 import core.Coord;
+import core.DTNHost;
 import core.Settings;
 import core.SimClock;
 import movement.room.RoomBase;
+import movement.schedule.Schedule;
 import util.PolygonUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,8 +21,11 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
 
     private double _nextMoveTime = 0;
 
-    //TODO add schedule
-    //private Schedule _schedule
+    private Schedule _schedule;
+
+    public RoomBase.RoomType GetCurrentRoom() {
+        return _currentRoom.GetRoomType();
+    }
 
     private boolean _scheduleFinished = false;
 
@@ -42,6 +47,17 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
     }
 
     @Override
+    public void setHost(DTNHost host) {
+        super.setHost(host);
+        this.generateSchedule(); // Can only initialize after the host has been set
+    }
+
+    private void generateSchedule() {
+        int seed = host.getAddress();
+        _schedule = Schedule.fromSeed(seed);
+    }
+
+    @Override
     public Path getPath() {
         if(_currentRoom.GetRoomType() == RoomBase.RoomType.Subway && _scheduleFinished) {
             this._isEnabled = false;
@@ -57,9 +73,7 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
         RoomBase previousRoom = _currentRoom;
         _currentRoom = _nextRoom;
 
-        //TODO get next room based on schedule at some point
-        //for now just select a random neighboring room
-        RoomBase nextRoom = _currentRoom.GetRandomNeighboringRoom();
+        RoomBase nextRoom = _schedule.getNextRoom(currentTime);
 
         Path p = new Path(generateSpeed());
         p.addWaypoint(_lastWaypoint.clone());
@@ -71,13 +85,13 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
             p.addWaypoint(doorCoord.clone());
         }
 
-        //TODO do this via schedule instead
-        _nextMoveTime = currentTime + nextRoom.GetTimeInRoom().Random();
+        _nextMoveTime = _schedule.getNextSlotTime(currentTime);
 
         if(!nextRoom.GetDoRandomWalk() && nextRoom.GetRoomType() == _currentRoom.GetRoomType()) {
             _nextRoom = nextRoom;
             return null;
         }
+
         Coord c = PolygonUtils.RandomPointInside(nextRoom.GetPolygon());
         p.addWaypoint(c);
         _lastWaypoint = c;

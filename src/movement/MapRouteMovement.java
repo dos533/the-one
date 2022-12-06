@@ -81,7 +81,7 @@ public class MapRouteMovement extends MapBasedMovement implements
 	 * list of routes and randomizes the starting position.
 	 * @param proto The MapRouteMovement prototype
 	 */
-	protected MapRouteMovement(MapRouteMovement proto) {
+	public MapRouteMovement(MapRouteMovement proto) {
 		super(proto);
 		this.route = proto.allRoutes.get(proto.nextRouteIndex).replicate();
 		this.firstStopIndex = proto.firstStopIndex;

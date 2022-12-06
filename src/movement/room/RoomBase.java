@@ -16,6 +16,8 @@ public abstract class RoomBase {
             {RoomType.Magistrale, new Magistrale()}
     }).collect(Collectors.toMap(data -> (RoomType) data[0], data -> (RoomBase) data[1]));
 
+    private static Random rand = new Random();
+
     private RoomType _type = RoomType.None;
     private boolean _doRandomWalk;
     protected Map<RoomType, Coord> roomDoors;
@@ -57,7 +59,6 @@ public abstract class RoomBase {
     }
 
     public RoomBase GetRandomNeighboringRoom() {
-        Random rand = new Random();
         //this looks like hacky java... but im pretty sure its correct
         RoomType[] neighbors = roomDoors.keySet().toArray(new RoomType[0]);
 
@@ -105,11 +106,36 @@ public abstract class RoomBase {
         Wing13,
         Library,
         Cafe,
+        Lunch,
+        VendingMachine,
         LectureHall01,
         LectureHall02,
         LectureHall03,
         Outside,
-        Subway
+        Subway,
+        CarPark,
+    }
+
+    public static List<RoomType> LunchOptions = Arrays.asList(RoomType.Cafe, RoomType.Lunch, RoomType.VendingMachine);
+    public static List<RoomType> LectureRooms = Arrays.asList(RoomType.LectureHall01, RoomType.LectureHall02, RoomType.LectureHall03);
+    public static List<RoomType> GatheringRooms = Arrays.asList(RoomType.Magistrale);
+    public static List<RoomType> EntranceAndExitOptions = Arrays.asList(RoomType.Subway, RoomType.CarPark);
+
+
+    public static RoomType GetRandomLunchOption() {
+        return LunchOptions.get(rand.nextInt(LunchOptions.size() - 1));
+    }
+
+    public static RoomType GetRandomLectureRoom() {
+        return LectureRooms.get(rand.nextInt(LectureRooms.size()) - 1);
+    }
+
+    public static RoomType GetRandomGatheringRoom() {
+        return RoomType.Magistrale;
+    }
+
+    public static RoomType GetRandomEntranceAndExitOption() {
+        return EntranceAndExitOptions.get(EntranceAndExitOptions.size() - 1);
     }
 
 }
