@@ -1,11 +1,10 @@
 package movement.schedule;
 
 import core.Settings;
-import movement.MovementModel;
+import movement.room.RoomBase;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Random;
 
 public class Schedule {
@@ -17,10 +16,8 @@ public class Schedule {
     private static final int START_TIME_MIN = 8;
     private static final int START_TIME_MAX = 16;
 
-    private static final int WAIT_TIME_MIN = 0;
-    private static final int WAIT_TIME_MAX = 2;
-
-    ArrayList<ScheduleItem> items;
+    ArrayList<ScheduleSlot> slots;
+    RoomBase.RoomType exitRoom;
 
     static ArrayList<Lecture> lectures;
 
@@ -28,21 +25,16 @@ public class Schedule {
         Settings s = new Settings("Schedule");
         lectures = new ArrayList<>();
 
-        ArrayList<Integer> lectureRooms = new ArrayList<>();
-        lectureRooms.add(1);
-        lectureRooms.add(2);
-        lectureRooms.add(3);
-        lectureRooms.add(4);
-
         Random rng = new Random(s.getInt("RNG_SEED"));
 
         // this might never stop if generating non-overlapping lectures is not possible
         generateNextLecture: while (lectures.size() < 20) {
 
-            int time = rng.nextInt(START_TIME_MAX - START_TIME_MIN + 1) + START_TIME_MIN;
-            int room = rng.nextInt(lectureRooms.size());
+            double time = rng.nextInt(START_TIME_MAX - START_TIME_MIN + 1) + START_TIME_MIN;
+            RoomBase.RoomType room = RoomBase.GetRandomLectureRoom();
 
-            double duration = 1.5;
+            // always 2h at the moment
+            double duration = 2;
 
             for (int j = 0; j < lectures.size(); j++) {
                 var l = lectures.get(j);
@@ -56,128 +48,144 @@ public class Schedule {
         }
     }
 
-    public Schedule(ArrayList<ScheduleItem> items) {
-        this.items = items;
+    public Schedule(ArrayList<ScheduleSlot> slots) {
+        this.slots = slots;
+        this.exitRoom = RoomBase.GetRandomEntranceAndExitOption();
     }
 
     public static Schedule fromSeed(int seed) {
 
         Random rng = new Random(seed);
 
-        ArrayList<ScheduleItem> items = new ArrayList<>();
+        ArrayList<ScheduleSlot> slots = new ArrayList<>();
 
         int nrLectures = rng.nextInt(NR_LECTURES_MAX - NR_LECTURES_MIN + 1) + NR_LECTURES_MIN;
 
         var chooseFromLectures = new ArrayList<>(lectures);
 
-        pickNextLecture: while (items.size() < nrLectures && chooseFromLectures.size() > 0) {
+        // first pick all lectures
+        pickNextLecture: while (slots.size() < nrLectures && chooseFromLectures.size() > 0) {
 
             var index = rng.nextInt(chooseFromLectures.size());
             var lecture = chooseFromLectures.get(index);
 
-            for (int j = 0; j < items.size(); j++) {
-                var item = items.get(j);
+            for (int j = 0; j < slots.size(); j++) {
+                var slot = slots.get(j);
                 // skip if overlaps with other lecture
-                if (lecture.time + lecture.duration >= item.time && lecture.time <= item.time + item.duration) {
+                if (lecture.time + lecture.duration >= slot.time && lecture.time <= slot.time + slot.duration) {
                     chooseFromLectures.remove(index);
                     continue pickNextLecture;
                 }
             }
 
-            items.add(new ScheduleItem(RoomType.lecture, lecture.time, lecture.duration, lecture.room));
+            // add some randomness aka people coming/leaving early/late
+
+            // lets people come around quarter past the hour +- 10 mins
+            var time = lecture.time + 0.25 + (rng.nextDouble() - 0.5) * 0.2;
+
+            // lets people leave around quarter to the hour +- 10 mins
+            var duration = lecture.duration - 0.5 + (rng.nextDouble() - 0.5) * 0.2;
+
+            slots.add(new ScheduleSlot(time, duration, lecture.room));
         }
 
-        items.sort(Comparator.comparingDouble(o -> o.time));
+        slots.sort(Comparator.comparingDouble(o -> o.time));
 
         boolean hadLunch = false;
 
+        // second fill slots between lecture
         int i = 0;
-        while (i < items.size()-1) {
+        while (i < slots.size()-1) {
 
-            var l1 = items.get(i);
-            var l2 = items.get(i+1);
+            var l1 = slots.get(i);
+            var l2 = slots.get(i+1);
 
             var start = l1.time + l1.duration;
             var gap = l2.time - start;
 
-            if (!hadLunch && gap > 0.5) {
+            // go for lunch only if at least 20 mins time and after 10:30
 
-                // choose room for lunch
-                items.add(i+1, new ScheduleItem(RoomType.eating, start, gap, 0));
+            if (!hadLunch && start >= 10.5 && gap > 0.2) {
+                var gettingLunchDuration = 0.1;
+
+                // getting lunch (10 mins)
+                var room = RoomBase.GetRandomLunchOption();
+                slots.add(++i, new ScheduleSlot(start, gettingLunchDuration, room));
                 hadLunch = true;
-            } else {
-                // choose room for hangout
-                items.add(i+1, new ScheduleItem(RoomType.hangout, start, gap, 0));
-            }
-            i += 2;
 
+                // eating lunch (rest available time)
+                var room2 = RoomBase.GetRandomGatheringRoom();
+                slots.add(++i, new ScheduleSlot(start + gettingLunchDuration, gap - gettingLunchDuration, room2));
+
+            } else {
+                // just hangout for the available time
+                var room = RoomBase.GetRandomGatheringRoom();
+                slots.add(++i, new ScheduleSlot(start, gap, room));
+            }
+            i++;
         }
 
-        return new Schedule(items);
+        return new Schedule(slots);
     }
 
-}
+    public RoomBase getNextRoom(double currentTime) {
 
-enum RoomType {
-    lecture, eating, hangout, outside
+        var currentTimeAsHourOfDay = 7 + (currentTime / 60 / 60);
+
+        if (currentTimeAsHourOfDay < slots.get(0).time) {
+            return getExitRoom();
+        }
+
+        for (var slot : slots) {
+            if (currentTimeAsHourOfDay < slot.time + slot.duration) {
+                return getRoomForSlot(slot);
+            }
+        }
+
+        return getExitRoom();
+    }
+
+    private RoomBase getExitRoom() {
+        return RoomBase.AllRooms.get(exitRoom);
+    }
+
+    private RoomBase getRoomForSlot(ScheduleSlot slot) {
+        return RoomBase.AllRooms.get(slot.room);
+    }
+
+    public double getNextSlotTime(double currentTime) {
+        var currentTimeAsHourOfDay = 7 + (currentTime / 60 / 60);
+
+        for (var slot : slots) {
+            if (currentTimeAsHourOfDay < slot.time) {
+                return slot.time;
+            }
+        }
+
+        return Double.MAX_VALUE;
+    }
 }
 
 class Lecture {
 
     public double time;
     public double duration;
-    public int room;
+    public RoomBase.RoomType room;
 
-    public Lecture(double time, double duration, int room) {
+    public Lecture(double time, double duration, RoomBase.RoomType room) {
         this.time = time;
         this.duration = duration;
         this.room = room;
     }
 }
 
-class ScheduleItem {
+class ScheduleSlot {
 
-    /*
-
-    Lecture:
-      - fixed place and time
-      - find route to destination and move along path
-      - don't respect encounters
-      - stay at lecture until over
-
-    Lunch:
-      - fixed time, variable place
-      - scheduled in between lectures, around noon, when enough time
-      - pick place at random
-      - find route to destination and move along path
-      - respect encounters only by other nodes in lunch mode - opt. change destination
-      - stay there while waiting & eating
-
-    Study:
-      - fixed place, variable time
-      - scheduled in between lectures, when enough time
-      - pick time at random
-      - find route to destination and move along path
-      - respect encounters
-      - stay there until time over
-
-    Roam:
-      - variable place, variable time
-      - scheduled to fill gaps in schedule
-      - pick place at random, full available time
-      - find route to destination and move along path
-      - respect encounters
-      - stay there until time over
-
-     */
-
-    public RoomType type;
     public double time;
     public double duration;
-    public int room;
+    public RoomBase.RoomType room;
 
-    public ScheduleItem(RoomType type, double time, double duration, int room) {
-        this.type = type;
+    public ScheduleSlot(double time, double duration, RoomBase.RoomType room) {
         this.time = time;
         this.duration = duration;
         this.room = room;
