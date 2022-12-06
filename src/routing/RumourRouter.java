@@ -90,6 +90,52 @@ public class RumourRouter extends EpidemicRouter {
 		return aMessage;
 	}
 
+	/**
+	 * Checks if router "wants" to start receiving message (i.e. router
+	 * isn't transferring, doesn't have the message and has room for it).
+	 * @param m The message to check
+	 * @return A return code similar to
+	 * {@link MessageRouter#receiveMessage(Message, DTNHost)}, i.e.
+	 * {@link MessageRouter#RCV_OK} if receiving seems to be OK,
+	 * TRY_LATER_BUSY if router is transferring, DENIED_OLD if the router
+	 * is already carrying the message or it has been delivered to
+	 * this router (as final recipient), or DENIED_NO_SPACE if the message
+	 * does not fit into buffer
+	 */
+	@Override
+	protected int checkReceiving(Message m, DTNHost from) {
+		if (isTransferring()) {
+			return TRY_LATER_BUSY; // only one connection at a time
+		}
+
+//		TODO : Do not ignore repetitive messages
+//		if ( hasMessage(m.getId()) || isDeliveredMessage(m) || super.isBlacklistedMessage(m.getId())) {
+//			return DENIED_OLD; // already seen this message -> reject it
+//		}
+
+		if (m.getTtl() <= 0 && m.getTo() != getHost()) {
+			/* TTL has expired and this host is not the final recipient */
+			return DENIED_TTL;
+		}
+
+		if (!this.hasEnergy()) {
+			return MessageRouter.DENIED_LOW_RESOURCES;
+		}
+
+//		TODO : Check policy
+//		if (!policy.acceptReceiving(from, getHost(), m)) {
+//			return MessageRouter.DENIED_POLICY;
+//		}
+
+		/* remove oldest messages but not the ones being sent */
+		if (!makeRoomForMessage(m.getSize())) {
+			return DENIED_NO_SPACE; // couldn't fit into buffer -> reject
+		}
+
+		return RCV_OK;
+	}
+
+
 
 
 

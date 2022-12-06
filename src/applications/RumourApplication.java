@@ -131,7 +131,7 @@ public class RumourApplication extends Application {
 //				System.out.println(host.getMessageCollection());
 //			}
 
-//			msg.printHops("r99");
+			msg.printHops("r99");
 
 			if (sendingProb >= rng.nextDouble()){
 				return msg;
