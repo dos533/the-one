@@ -17,5 +17,5 @@ doc/package-list
 /target/
 .settings/org.eclipse.*
 
-# Output files
 out/
+.idea/

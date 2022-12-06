@@ -132,6 +132,13 @@ public class Message implements Comparable<Message> {
 	}
 
 	/**
+	 * Returns the last node on the list of nodes this message has passed
+	 * @return Last node before the receiving node
+	 */
+	public DTNHost getLastHop() {return this.path.get(getHopCount()-1);}
+
+
+	/**
 	 * Returns a list of nodes this message has passed so far
 	 * @return The list as vector
 	 */
@@ -146,6 +153,45 @@ public class Message implements Comparable<Message> {
 	public int getHopCount() {
 		return this.path.size() -1;
 	}
+
+	/**
+	 * Print hops in message
+	 */
+	public String hopsToString(int i){
+		String txt = "";
+		i = Integer.min(i, getHopCount());
+		for(int j=0; j < i; j++){
+			txt += this.path.get(j).toString() + "->";
+		}
+		return txt;
+	}
+
+
+	/**
+	 * Print hops in message
+	 */
+	public void printHops(){
+		for(DTNHost node: getHops()){
+			System.out.print(node);
+			System.out.print("->");
+		}
+		System.out.println();
+	}
+
+	/**
+	 * Print hops in message only originating from target node
+	 * @param nodeName Name of the node given by groupID + address
+	 */
+	public void printHops(String nodeName){
+		if (getHops().get(0).toString().equalsIgnoreCase(nodeName)){
+			for(DTNHost node: getHops()){
+				System.out.print(node);
+				System.out.print("->");
+			}
+			System.out.println();
+		}
+	}
+
 
 	/**
 	 * Returns the time to live (minutes) of the message or Integer.MAX_VALUE
