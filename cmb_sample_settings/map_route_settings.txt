@@ -20,13 +20,13 @@ Group1.nrofHosts = 1
 Group1.nrofInterfaces = 1
 Group1.interface1 = myInterface
 Group1.movementModel = MapRouteMovement
-Group1.routeFile = data/cluster/ferryroute.wkt
+Group1.routeFile = data/cluster/tum_basic.wkt
 Group1.routeType = 1
 Group1.router = PassiveRouter
 
 ## Map based movement -movement model specific settings
 MapBasedMovement.nrofMapFiles = 2
-MapBasedMovement.mapFile1 = data/cluster/ferryroute.wkt
+MapBasedMovement.mapFile1 = data/cluster/tum_basic.wkt
 MapBasedMovement.mapFile2 = data/cluster/origin.wkt
 
 # Reports
