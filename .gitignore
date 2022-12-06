@@ -13,5 +13,9 @@ doc/package-list
 # Eclipse IDE files
 .classpath
 .project
+.idea/
 /target/
 .settings/org.eclipse.*
+
+# Output files
+out/
