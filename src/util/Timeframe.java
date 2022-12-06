@@ -10,7 +10,7 @@ public class Timeframe {
 
 
     public double Random() {
-        return rand.nextDouble(Min, Max);
+        return rand.nextDouble() * Max + Min;
     }
 
     public Timeframe() {

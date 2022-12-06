@@ -68,7 +68,8 @@ public abstract class RoomBase {
         }
         selfIncludedNeighbors[neighbors.length] = _type;
 
-        RoomType randomType = selfIncludedNeighbors[rand.nextInt(0, selfIncludedNeighbors.length)];
+        RoomType randomType = selfIncludedNeighbors[rand.nextInt(selfIncludedNeighbors.length)];
+
         return RoomBase.AllRooms.get(randomType);
     }
 

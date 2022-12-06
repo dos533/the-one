@@ -67,7 +67,7 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
         System.out.println(_currentRoom.GetRoomType() + " -> " + nextRoom.GetRoomType() );
 
         if(nextRoom.GetRoomType() != _currentRoom.GetRoomType()) {
-            var doorCoord = _currentRoom.GetDoorToRoom(nextRoom.GetRoomType());
+            Coord doorCoord = _currentRoom.GetDoorToRoom(nextRoom.GetRoomType());
             p.addWaypoint(doorCoord.clone());
         }
 

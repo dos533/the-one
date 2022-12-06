@@ -31,7 +31,7 @@ public class PolygonUtils {
 
         Coord c = null;
         while(c == null) {
-            Coord randomC = new Coord(_random.nextDouble(bounds[0].getX(), bounds[1].getX()), _random.nextDouble(bounds[0].getY(), bounds[1].getY()));
+            Coord randomC = new Coord(_random.nextDouble() * bounds[1].getX() + bounds[0].getX(), _random.nextDouble() * bounds[1].getY() + bounds[0].getY());
             if(IsInside(polygon, randomC)) {
                 c = randomC;
             }
