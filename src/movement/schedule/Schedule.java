@@ -27,7 +27,7 @@ public class Schedule {
 
         Random rng = new Random(s.getInt("RNG_SEED"));
 
-        var nrLectures = RoomBase.LectureRooms.size() * 4;
+        int nrLectures = RoomBase.LectureRooms.size() * 4;
         // this might never stop if generating non-overlapping lectures is not possible
         generateNextLecture: while (lectures.size() < nrLectures) {
 
@@ -38,7 +38,7 @@ public class Schedule {
             double duration = 2;
 
             for (int j = 0; j < lectures.size(); j++) {
-                var l = lectures.get(j);
+                Lecture l = lectures.get(j);
                 // skip if overlaps with other lecture in the same room
                 if (l.room == room && time + duration > l.time && time < l.time + l.duration) {
                     continue generateNextLecture;
@@ -65,16 +65,16 @@ public class Schedule {
 
         int nrLectures = rng.nextInt(NR_LECTURES_MAX - NR_LECTURES_MIN + 1) + NR_LECTURES_MIN;
 
-        var chooseFromLectures = new ArrayList<>(lectures);
+        ArrayList<Lecture> chooseFromLectures = new ArrayList<>(lectures);
 
         // first pick all lectures
         pickNextLecture: while (slots.size() < nrLectures && chooseFromLectures.size() > 0) {
 
-            var index = rng.nextInt(chooseFromLectures.size());
-            var lecture = chooseFromLectures.get(index);
+            int index = rng.nextInt(chooseFromLectures.size());
+            Lecture lecture = chooseFromLectures.get(index);
 
             for (int j = 0; j < slots.size(); j++) {
-                var slot = slots.get(j);
+                ScheduleSlot slot = slots.get(j);
                 // skip if overlaps with other lecture
                 if (lecture.time + lecture.duration >= slot.time && lecture.time <= slot.time + slot.duration) {
                     chooseFromLectures.remove(index);
@@ -85,10 +85,10 @@ public class Schedule {
             // add some randomness aka people coming/leaving early/late
 
             // lets people come around quarter past the hour +- 10 mins
-            var time = lecture.time + 0.25 + (rng.nextDouble() - 0.5) * 0.2;
+            double time = lecture.time + 0.25 + (rng.nextDouble() - 0.5) * 0.2;
 
             // lets people leave around quarter to the hour +- 10 mins
-            var duration = lecture.duration - 0.5 + (rng.nextDouble() - 0.5) * 0.2;
+            double duration = lecture.duration - 0.5 + (rng.nextDouble() - 0.5) * 0.2;
 
             slots.add(new ScheduleSlot(time, duration, lecture.room));
         }
@@ -101,29 +101,29 @@ public class Schedule {
         int i = 0;
         while (i < slots.size()-1) {
 
-            var l1 = slots.get(i);
-            var l2 = slots.get(i+1);
+            ScheduleSlot l1 = slots.get(i);
+            ScheduleSlot l2 = slots.get(i+1);
 
-            var start = l1.time + l1.duration;
-            var gap = l2.time - start;
+            double start = l1.time + l1.duration;
+            double gap = l2.time - start;
 
             // go for lunch only if at least 20 mins time and after 10:30
 
             if (!hadLunch && start >= 10.5 && gap > 0.2) {
-                var gettingLunchDuration = 0.1;
+                double gettingLunchDuration = 0.1;
 
                 // getting lunch (10 mins)
-                var room = RoomBase.GetRandomLunchOption();
+                RoomBase.RoomType room = RoomBase.GetRandomLunchOption();
                 slots.add(++i, new ScheduleSlot(start, gettingLunchDuration, room));
                 hadLunch = true;
 
                 // eating lunch (rest available time)
-                var room2 = RoomBase.GetRandomGatheringRoom();
+                RoomBase.RoomType room2 = RoomBase.GetRandomGatheringRoom();
                 slots.add(++i, new ScheduleSlot(start + gettingLunchDuration, gap - gettingLunchDuration, room2));
 
             } else {
                 // just hangout for the available time
-                var room = RoomBase.GetRandomGatheringRoom();
+                RoomBase.RoomType room = RoomBase.GetRandomGatheringRoom();
                 slots.add(++i, new ScheduleSlot(start, gap, room));
             }
             i++;
@@ -136,13 +136,13 @@ public class Schedule {
 
     public RoomBase getNextRoom(double currentTime) {
 
-        var currentTimeAsHourOfDay = 7 + (currentTime / 60 / 60);
+        double currentTimeAsHourOfDay = 7 + (currentTime / 60 / 60);
 
         if (currentTimeAsHourOfDay < slots.get(0).time) {
             return getExitRoom();
         }
 
-        for (var slot : slots) {
+        for (ScheduleSlot slot : slots) {
             if (currentTimeAsHourOfDay < slot.time + slot.duration) {
                 return getRoomForSlot(slot);
             }
@@ -160,9 +160,9 @@ public class Schedule {
     }
 
     public double getNextSlotTime(double currentTime) {
-        var currentTimeAsHourOfDay = 7 + (currentTime / 60 / 60);
+        double currentTimeAsHourOfDay = 7 + (currentTime / 60 / 60);
 
-        for (var slot : slots) {
+        for (ScheduleSlot slot : slots) {
             if (currentTimeAsHourOfDay < slot.time) {
                 return slot.time;
             }

@@ -8,7 +8,7 @@ import movement.room.RoomBase;
 import movement.schedule.Schedule;
 import util.PolygonUtils;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RoomBasedMovement extends MovementModel implements SwitchableMovement{
@@ -71,19 +71,23 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
             return null;
         }
 
-        RoomBase previousRoom = _currentRoom;
         _currentRoom = _nextRoom;
 
         RoomBase nextRoom = _schedule.getNextRoom(currentTime);
 
+        if(nextRoom == null) {
+            return null;
+        }
+
         Path p = new Path(generateSpeed());
         p.addWaypoint(_lastWaypoint.clone());
-
-        System.out.println(_currentRoom.GetRoomType() + " -> " + nextRoom.GetRoomType() );
+        if(_currentRoom.GetRoomType() != nextRoom.GetRoomType())
+            System.out.println(_currentRoom.GetRoomType() + " -> " + nextRoom.GetRoomType() );
 
         if(nextRoom.GetRoomType() != _currentRoom.GetRoomType()) {
-            Coord doorCoord = _currentRoom.GetDoorToRoom(nextRoom.GetRoomType());
-            p.addWaypoint(doorCoord.clone());
+            for (Coord c: GetPathToRoom(_currentRoom.GetRoomType(), nextRoom.GetRoomType())) {
+                p.addWaypoint(c.clone());
+            }
         }
 
         _nextMoveTime = _schedule.getNextSlotTime(currentTime);
@@ -99,6 +103,73 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
         _nextRoom = nextRoom;
 
         return p;
+    }
+
+
+    private Coord[] GetPathToRoom(RoomBase.RoomType current, RoomBase.RoomType target) {
+
+        RoomBase.RoomType pred[] = new RoomBase.RoomType[RoomBase.RoomType.values().length];
+        int dist[] = new int[RoomBase.RoomType.values().length];
+
+        if(!BFS(current, target, pred, dist)) {
+            System.out.println("Rooms " + current + " and " + target + " are not connected!");
+        }
+
+        LinkedList<RoomBase.RoomType> path = new LinkedList<RoomBase.RoomType>();
+        RoomBase.RoomType crawl = target;
+        path.add(crawl);
+
+        while(pred[crawl.ordinal()] != null) {
+            path.add(pred[crawl.ordinal()]);
+            crawl = pred[crawl.ordinal()];
+        }
+
+        Coord doors[] = new Coord[path.size() - 1];
+        RoomBase.RoomType pathArray[] = path.toArray(new RoomBase.RoomType[0]);
+        for(int i = 0; i < path.size() - 1; i++ ){
+            doors[i] = RoomBase.AllRooms.get(pathArray[i]).GetDoorToRoom(pathArray[i + 1]);
+        }
+
+        return doors;
+
+    }
+
+    private static boolean BFS(RoomBase.RoomType current, RoomBase.RoomType dest, RoomBase.RoomType[] pred, int[] dist) {
+        LinkedList<RoomBase.RoomType> queue = new LinkedList<RoomBase.RoomType>();
+
+        boolean visited[] = new boolean[RoomBase.RoomType.values().length];
+
+        for(int i = 0; i < RoomBase.RoomType.values().length; i++) {
+            visited[i] = false;
+            dist[i] = Integer.MAX_VALUE;
+            pred[i] = null;
+        }
+
+        visited[current.ordinal()] = true;
+        dist[current.ordinal()] = 0;
+        queue.add(current);
+
+
+        //nested mess... but its just BFS so im not going to denest it
+        while(!queue.isEmpty()) {
+            RoomBase room = RoomBase.AllRooms.get(queue.remove());
+            RoomBase.RoomType neighbors[] = room.GetNeighbors().toArray(new RoomBase.RoomType[0]);
+            for( int i = 0; i < neighbors.length; i++) {
+                if(!visited[neighbors[i].ordinal()]) {
+                    visited[neighbors[i].ordinal()] = true;
+                    dist[neighbors[i].ordinal()] = dist[room.GetRoomType().ordinal()] + 1;
+                    pred[neighbors[i].ordinal()] = room.GetRoomType();
+                    queue.add(neighbors[i]);
+
+                    //room found
+                    if(neighbors[i] == dest) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override

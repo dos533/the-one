@@ -60,6 +60,10 @@ public abstract class RoomBase {
         return roomDoors.get(room);
     }
 
+    public Set<RoomType> GetNeighbors() {
+        return roomDoors.keySet();
+    }
+
     public RoomBase GetRandomNeighboringRoom() {
         //this looks like hacky java... but im pretty sure its correct
         RoomType[] neighbors = roomDoors.keySet().toArray(new RoomType[0]);
