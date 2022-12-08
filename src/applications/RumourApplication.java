@@ -36,8 +36,10 @@ public class RumourApplication extends Application {
 	public static final String PING_SEED = "seed";
 	/** Size of the ping message */
 	public static final String MSG_SIZE = "msgSize";
-	/** Threshold of believing the rumour (in percentage) */
-	public static final String RUMOUR_THRESHOLD = "threshold";
+	/** Threshold of receiving the rumour */
+	public static final String RUMOUR_RECEIVE_THRESHOLD = "receiveThreshold";
+	/** Threshold of sending the rumour */
+	public static final String RUMOUR_SEND_THRESHOLD = "sendThreshold";
 
 	/** Application ID */
 	public static final String APP_ID = "RumourApplication";
@@ -51,9 +53,31 @@ public class RumourApplication extends Application {
 	private int		destMax=1;
 	private int msgSize =1;
 	private Random	rng;
-	private double threshold;
+	private double recThreshold;
+	private double senThreshold;
 	private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> msgReceived;
 
+	private static final HashMap<String, HashMap<String, Double>> trustMap;
+	static {
+		trustMap = new HashMap<>();
+		trustMap.put("professor", new HashMap<>());
+		trustMap.put("student", new HashMap<>());
+		trustMap.put("cleaner", new HashMap<>());
+		trustMap.put("barista", new HashMap<>());
+		trustMap.put("visitor", new HashMap<>());
+
+		trustMap.get("professor").put("professor", 0.95);
+		trustMap.get("professor").put("student", 0.5);
+		trustMap.get("professor").put("cleaner", 0.6);
+
+		trustMap.get("student").put("student", 0.8);
+		trustMap.get("student").put("professor", 0.95);
+		trustMap.get("student").put("cleaner", 0.6);
+
+		trustMap.get("cleaner").put("student", 0.5);
+		trustMap.get("cleaner").put("professor", 0.8);
+		trustMap.get("cleaner").put("cleaner", 0.8);
+	}
 
 	/**
 	 * Creates a new rumour application with the given settings.
@@ -76,8 +100,11 @@ public class RumourApplication extends Application {
 		if (s.contains(MSG_SIZE)) {
 			this.msgSize = s.getInt(MSG_SIZE);
 		}
-		if (s.contains(RUMOUR_THRESHOLD)) {
-			this.threshold = s.getDouble(RUMOUR_THRESHOLD);
+		if (s.contains(RUMOUR_RECEIVE_THRESHOLD)) {
+			this.recThreshold = s.getDouble(RUMOUR_RECEIVE_THRESHOLD);
+		}
+		if (s.contains(RUMOUR_SEND_THRESHOLD)) {
+			this.senThreshold = s.getDouble(RUMOUR_SEND_THRESHOLD);
 		}
 		if (s.contains(MSG_DEST_RANGE)){
 			int[] destination = s.getCsvInts(MSG_DEST_RANGE,2);
@@ -94,7 +121,7 @@ public class RumourApplication extends Application {
 	/**
 	 * Copy-constructor
 	 *
-	 * @param a
+	 * @param a Rumour application
 	 */
 	public RumourApplication(RumourApplication a) {
 		super(a);
@@ -106,6 +133,8 @@ public class RumourApplication extends Application {
 		this.seed = a.getSeed();
 		this.msgSize = a.getMsgSize();
 		this.rng = new Random(this.seed);
+		this.recThreshold = a.recThreshold;
+		this.senThreshold = a.senThreshold;
 		this.msgReceived = (HashMap<String, HashMap<String, HashMap<Integer, Integer>>>) a.msgReceived.clone();
 	}
 
@@ -144,15 +173,16 @@ public class RumourApplication extends Application {
 			double real = (double) msg.getProperty("real");	// Realistic or not (given as percentage)
 			double infectProb = getConfidence(msg, host, real);	// Confidence of the message received by the sender
 
-			if (host.getAddress()==99){
+			if (host.getAddress()==124){
 				System.out.print(host.getAddress());
 				System.out.println(host.getMessageCollection());
 				System.out.println(this.msgReceived.toString());
+				System.out.println(msg.getId() + " " + infectProb);
 			}
 
 //			msg.printHops("r99");
 
-			if (infectProb >= threshold){
+			if (infectProb >= senThreshold){
 				return msg;
 			}
 			else{
@@ -221,14 +251,22 @@ public class RumourApplication extends Application {
 	 */
 	public double getConfidence(Message msg, DTNHost host, double real){
 		// TODO : return confidence of message based on sender, message, path
+		String msgId = msg.getId();
+		String recType = host.groupId;
+		HashMap<String, HashMap<Integer, Integer>> count = this.msgReceived.get(msgId);
+		double conf = 0;
 
-		double conf = 1;
+		for (String groupId : count.keySet()){
+//			System.out.println(recType);
+			double trust = trustMap.get(recType).get(groupId);
+			for (Integer address : count.get(groupId).keySet()){
+				if (count.get(groupId).get(address) >= recThreshold){
+					conf += trust;
+				}
+			}
+		}
 
-//		DTNHost from = msg.getLastHop();
-//
-//		if (from.groupId.equalsIgnoreCase(host.groupId)){
-//			// TODO : Improve confidence if sender and receiver from same group
-//		}
+		conf = conf / real;
 
 		return conf;
 	}
