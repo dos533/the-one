@@ -117,6 +117,8 @@ public class DTNHost implements Comparable<DTNHost> {
 		return this.movement.isActive();
 	}
 
+	public MovementModel getMovement(){return this.movement;}
+
 	/**
 	 * Returns true if this node's radio is active (false if not)
 	 * @return true if this node's radio is active (false if not)

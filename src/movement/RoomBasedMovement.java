@@ -41,6 +41,8 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
         return _isEnabled;
     }
 
+    public RoomBase get_currentRoom() { return _currentRoom; }
+
     @Override
     public Path getPath() {
         if(_currentRoom.GetRoomType() == RoomBase.RoomType.Subway && _scheduleFinished) {

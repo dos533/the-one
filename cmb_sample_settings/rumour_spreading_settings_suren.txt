@@ -22,7 +22,9 @@ myinterface.transmitRange = 20
 
 # Define new application
 rumourApp.type = RumourApplication
+rumourApp.id = 1
 rumourApp.interval = 50
+rumourApp.sourceRange = 100,110
 rumourApp.destinationRange = 0,0
 rumourApp.msgSize = 5
 rumourApp.passive = false

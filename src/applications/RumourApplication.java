@@ -30,6 +30,8 @@ public class RumourApplication extends Application {
 	public static final String MSG_INTERVAL = "interval";
 	/** Ping interval offset - avoids synchronization of ping sending */
 	public static final String PING_OFFSET = "offset";
+	/** Source address range - inclusive lower, exclusive upper */
+	public static final String MSG_SRC_RANGE = "sourceRange";
 	/** Destination address range - inclusive lower, exclusive upper */
 	public static final String MSG_DEST_RANGE = "destinationRange";
 	/** Seed for the app's random number generator */
@@ -40,21 +42,35 @@ public class RumourApplication extends Application {
 	public static final String RUMOUR_RECEIVE_THRESHOLD = "receiveThreshold";
 	/** Threshold of sending the rumour */
 	public static final String RUMOUR_SEND_THRESHOLD = "sendThreshold";
+	/** Realistic nature of rumour */
+	public static final String RUMOUR_REAL = "real";
+	public static final String RUMOUR_ID = "id";
 
 	/** Application ID */
 	public static final String APP_ID = "RumourApplication";
 
+	// Static vars
+	private static int nextId = 0;
+
+
 	// Private vars
+    private int rumourId = 0;
 	private double lastRumourCreated = 0;
 	private double	interval = 500;
 	private boolean passive = false;
 	private int		seed = 0;
+	private int		srcMin=0;
+
+	private int		srcMax=1;
 	private int		destMin=0;
 	private int		destMax=1;
 	private int msgSize =1;
 	private Random	rng;
+
+	private double real = 1.0;
 	private double recThreshold;
 	private double senThreshold;
+
 	private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> msgReceived;
 
 	private static final HashMap<String, HashMap<String, Double>> trustMap;
@@ -77,6 +93,15 @@ public class RumourApplication extends Application {
 		trustMap.get("cleaner").put("student", 0.5);
 		trustMap.get("cleaner").put("professor", 0.8);
 		trustMap.get("cleaner").put("cleaner", 0.8);
+	}
+
+	/**
+	 * Returns the unique id of rumour
+	 * @return
+	 */
+
+	private synchronized static int getNextId() {
+		return nextId++;
 	}
 
 	/**
@@ -106,10 +131,23 @@ public class RumourApplication extends Application {
 		if (s.contains(RUMOUR_SEND_THRESHOLD)) {
 			this.senThreshold = s.getDouble(RUMOUR_SEND_THRESHOLD);
 		}
+		if (s.contains(MSG_SRC_RANGE)){
+			int[] source = s.getCsvInts(MSG_SRC_RANGE,2);
+			this.srcMin = source[0];
+			this.srcMax = source[1];
+		}
 		if (s.contains(MSG_DEST_RANGE)){
 			int[] destination = s.getCsvInts(MSG_DEST_RANGE,2);
 			this.destMin = destination[0];
 			this.destMax = destination[1];
+		}
+		if (s.contains(RUMOUR_REAL)){
+			this.real = s.getDouble(RUMOUR_REAL);
+		}
+		if (s.contains(RUMOUR_ID)){
+			this.rumourId = s.getInt(RUMOUR_ID);
+		} else{
+			rumourId = getNextId();
 		}
 
 		rng = new Random(this.seed);
@@ -130,12 +168,21 @@ public class RumourApplication extends Application {
 		this.passive = a.isPassive();
 		this.destMax = a.getDestMax();
 		this.destMin = a.getDestMin();
+		this.srcMax = a.getSrcMax();
+		this.srcMin = a.getSrcMin();
 		this.seed = a.getSeed();
 		this.msgSize = a.getMsgSize();
 		this.rng = new Random(this.seed);
 		this.recThreshold = a.recThreshold;
 		this.senThreshold = a.senThreshold;
 		this.msgReceived = (HashMap<String, HashMap<String, HashMap<Integer, Integer>>>) a.msgReceived.clone();
+		this.rumourId = a.rumourId;
+		this.real = a.real;
+	}
+
+	@Override
+	public Application replicate() {
+		return new RumourApplication(this);
 	}
 
 	private void addReceivedMessage(Message msg, DTNHost host){
@@ -164,6 +211,7 @@ public class RumourApplication extends Application {
 	public Message handle(Message msg, DTNHost host) {
 		String type = (String)msg.getProperty("type");
 		if (type==null) return msg;
+
 
 		if (type.equalsIgnoreCase("rumour")){
 			super.sendEventToListeners("receivedRumour", msg, host);
@@ -195,25 +243,21 @@ public class RumourApplication extends Application {
 	}
 
 	/**
-	 * Draws a random host from the destination range
+	 * Draws a random host from the range
 	 *
 	 * @return host
 	 */
-	private DTNHost randomHost() {
-		int destaddr = 0;
-		if (destMax == destMin) {
-			destaddr = destMin;
+	private DTNHost randomHost(int min, int max) {
+		int addr;
+		if (min == max) {
+			addr = min;
 		}else{
-			destaddr = destMin + rng.nextInt(destMax - destMin);
+			addr = min + rng.nextInt(max-min);
 		}
 		World w = SimScenario.getInstance().getWorld();
-		return w.getNodeByAddress(destaddr);
+		return w.getNodeByAddress(addr);
 	}
 
-	@Override
-	public Application replicate() {
-		return new RumourApplication(this);
-	}
 
 	/**
 	 * Sends a msg packet if this is an active application instance.
@@ -224,15 +268,17 @@ public class RumourApplication extends Application {
 	public void update(DTNHost host) {
 		if (this.passive) return;
 		double curTime = SimClock.getTime();
+		boolean hostInRange = host.getAddress() <= srcMax && host.getAddress() >= srcMin;
 
-		if (curTime - this.lastRumourCreated >= this.interval && curTime < 100){
+		if (curTime - this.lastRumourCreated >= this.interval && curTime < 100 && hostInRange){
 			// Rumour created only in the first few tics
-			// TODO : Change initial confience based on type of rumour
-			Message m = new Message(host, randomHost(),
-					SimClock.getIntTime() + "-" + host.getAddress(),
-					getMsgSize());
+//			String msgId = SimClock.getIntTime() + "-" + host.getAddress();
+			String msgId = Integer.toString(rumourId);
+
+			Message m = new Message(host, randomHost(destMin, destMax), msgId, getMsgSize());
+
 			m.addProperty("type", "rumour");
-			m.addProperty("real", 1.0);
+			m.addProperty("real", this.real);
 			m.setAppID(APP_ID);
 			host.createNewMessage(m);
 
@@ -250,14 +296,12 @@ public class RumourApplication extends Application {
 	 * @return the confidence of the message
 	 */
 	public double getConfidence(Message msg, DTNHost host, double real){
-		// TODO : return confidence of message based on sender, message, path
 		String msgId = msg.getId();
 		String recType = host.groupId;
 		HashMap<String, HashMap<Integer, Integer>> count = this.msgReceived.get(msgId);
 		double conf = 0;
 
 		for (String groupId : count.keySet()){
-//			System.out.println(recType);
 			double trust = trustMap.get(recType).get(groupId);
 			for (Integer address : count.get(groupId).keySet()){
 				if (count.get(groupId).get(address) >= recThreshold){
@@ -270,6 +314,8 @@ public class RumourApplication extends Application {
 
 		return conf;
 	}
+
+
 
 	/**
 	 * @return the lastRumourCreated
@@ -339,6 +385,20 @@ public class RumourApplication extends Application {
 	 */
 	public void setDestMax(int destMax) {
 		this.destMax = destMax;
+	}
+
+	/**
+	 * @return the destMin
+	 */
+	public int getSrcMin() {
+		return srcMin;
+	}
+
+	/**
+	 * @return the destMax
+	 */
+	public int getSrcMax() {
+		return srcMax;
 	}
 
 	/**
