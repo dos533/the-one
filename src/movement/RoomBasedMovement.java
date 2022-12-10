@@ -1,11 +1,14 @@
 package movement;
 
 import core.Coord;
+import core.DTNHost;
 import core.Settings;
 import core.SimClock;
 import movement.room.RoomBase;
+import movement.schedule.Schedule;
 import util.PolygonUtils;
 
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RoomBasedMovement extends MovementModel implements SwitchableMovement{
@@ -19,8 +22,11 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
 
     private double _nextMoveTime = 0;
 
-    //TODO add schedule
-    //private Schedule _schedule
+    private Schedule _schedule;
+
+    public RoomBase.RoomType GetCurrentRoom() {
+        return _currentRoom.GetRoomType();
+    }
 
     private boolean _scheduleFinished = false;
 
@@ -44,6 +50,17 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
     public RoomBase get_currentRoom() { return _currentRoom; }
 
     @Override
+    public void setHost(DTNHost host) {
+        super.setHost(host);
+        this.generateSchedule(); // Can only initialize after the host has been set
+    }
+
+    private void generateSchedule() {
+        int seed = host.getAddress();
+        _schedule = Schedule.fromSeed(seed);
+    }
+
+    @Override
     public Path getPath() {
         if(_currentRoom.GetRoomType() == RoomBase.RoomType.Subway && _scheduleFinished) {
             this._isEnabled = false;
@@ -56,36 +73,105 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
             return null;
         }
 
-        RoomBase previousRoom = _currentRoom;
         _currentRoom = _nextRoom;
 
-        //TODO get next room based on schedule at some point
-        //for now just select a random neighboring room
-        RoomBase nextRoom = _currentRoom.GetRandomNeighboringRoom();
+        RoomBase nextRoom = _schedule.getNextRoom(currentTime);
+
+        if(nextRoom == null) {
+            return null;
+        }
 
         Path p = new Path(generateSpeed());
         p.addWaypoint(_lastWaypoint.clone());
-
-        System.out.println(_currentRoom.GetRoomType() + " -> " + nextRoom.GetRoomType() );
+        if(_currentRoom.GetRoomType() != nextRoom.GetRoomType())
+            System.out.println(_currentRoom.GetRoomType() + " -> " + nextRoom.GetRoomType() );
 
         if(nextRoom.GetRoomType() != _currentRoom.GetRoomType()) {
-            Coord doorCoord = _currentRoom.GetDoorToRoom(nextRoom.GetRoomType());
-            p.addWaypoint(doorCoord.clone());
+            for (Coord c: GetPathToRoom(_currentRoom.GetRoomType(), nextRoom.GetRoomType())) {
+                p.addWaypoint(c.clone());
+            }
         }
 
-        //TODO do this via schedule instead
-        _nextMoveTime = currentTime + nextRoom.GetTimeInRoom().Random();
+        _nextMoveTime = _schedule.getNextSlotTime(currentTime);
 
         if(!nextRoom.GetDoRandomWalk() && nextRoom.GetRoomType() == _currentRoom.GetRoomType()) {
             _nextRoom = nextRoom;
             return null;
         }
+
         Coord c = PolygonUtils.RandomPointInside(nextRoom.GetPolygon());
         p.addWaypoint(c);
         _lastWaypoint = c;
         _nextRoom = nextRoom;
 
         return p;
+    }
+
+
+    private Coord[] GetPathToRoom(RoomBase.RoomType current, RoomBase.RoomType target) {
+
+        RoomBase.RoomType pred[] = new RoomBase.RoomType[RoomBase.RoomType.values().length];
+        int dist[] = new int[RoomBase.RoomType.values().length];
+
+        if(!BFS(current, target, pred, dist)) {
+            System.out.println("Rooms " + current + " and " + target + " are not connected!");
+        }
+
+        LinkedList<RoomBase.RoomType> path = new LinkedList<RoomBase.RoomType>();
+        RoomBase.RoomType crawl = target;
+        path.add(crawl);
+
+        while(pred[crawl.ordinal()] != null) {
+            path.add(pred[crawl.ordinal()]);
+            crawl = pred[crawl.ordinal()];
+        }
+
+        Coord doors[] = new Coord[path.size() - 1];
+        RoomBase.RoomType pathArray[] = path.toArray(new RoomBase.RoomType[0]);
+        for(int i = 0; i < path.size() - 1; i++ ){
+            doors[i] = RoomBase.AllRooms.get(pathArray[i]).GetDoorToRoom(pathArray[i + 1]);
+        }
+
+        return doors;
+
+    }
+
+    private static boolean BFS(RoomBase.RoomType current, RoomBase.RoomType dest, RoomBase.RoomType[] pred, int[] dist) {
+        LinkedList<RoomBase.RoomType> queue = new LinkedList<RoomBase.RoomType>();
+
+        boolean visited[] = new boolean[RoomBase.RoomType.values().length];
+
+        for(int i = 0; i < RoomBase.RoomType.values().length; i++) {
+            visited[i] = false;
+            dist[i] = Integer.MAX_VALUE;
+            pred[i] = null;
+        }
+
+        visited[current.ordinal()] = true;
+        dist[current.ordinal()] = 0;
+        queue.add(current);
+
+
+        //nested mess... but its just BFS so im not going to denest it
+        while(!queue.isEmpty()) {
+            RoomBase room = RoomBase.AllRooms.get(queue.remove());
+            RoomBase.RoomType neighbors[] = room.GetNeighbors().toArray(new RoomBase.RoomType[0]);
+            for( int i = 0; i < neighbors.length; i++) {
+                if(!visited[neighbors[i].ordinal()]) {
+                    visited[neighbors[i].ordinal()] = true;
+                    dist[neighbors[i].ordinal()] = dist[room.GetRoomType().ordinal()] + 1;
+                    pred[neighbors[i].ordinal()] = room.GetRoomType();
+                    queue.add(neighbors[i]);
+
+                    //room found
+                    if(neighbors[i] == dest) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override

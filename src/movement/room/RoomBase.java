@@ -13,8 +13,12 @@ public abstract class RoomBase {
     public static Map<RoomType, RoomBase> AllRooms = Stream.of(new Object[][]{
             {RoomType.Subway, new Subway()},
             {RoomType.Outside, new Outside()},
-            {RoomType.Magistrale, new Magistrale()}
+            {RoomType.Magistrale, new Magistrale()},
+            {RoomType.LectureHall01, new Lecture1()},
+            {RoomType.Cafe, new Cafe()},
     }).collect(Collectors.toMap(data -> (RoomType) data[0], data -> (RoomBase) data[1]));
+
+    private static Random rand = new Random();
 
     private RoomType _type = RoomType.None;
     private boolean _doRandomWalk;
@@ -56,8 +60,11 @@ public abstract class RoomBase {
         return roomDoors.get(room);
     }
 
+    public Set<RoomType> GetNeighbors() {
+        return roomDoors.keySet();
+    }
+
     public RoomBase GetRandomNeighboringRoom() {
-        Random rand = new Random();
         //this looks like hacky java... but im pretty sure its correct
         RoomType[] neighbors = roomDoors.keySet().toArray(new RoomType[0]);
 
@@ -105,11 +112,36 @@ public abstract class RoomBase {
         Wing13,
         Library,
         Cafe,
+        Lunch,
+        VendingMachine,
         LectureHall01,
         LectureHall02,
         LectureHall03,
         Outside,
-        Subway
+        Subway,
+        CarPark,
+    }
+
+    public static List<RoomType> LunchOptions = Arrays.asList(RoomType.Cafe, RoomType.Lunch, RoomType.VendingMachine);
+    public static List<RoomType> LectureRooms = Arrays.asList(RoomType.LectureHall01, RoomType.LectureHall02, RoomType.LectureHall03);
+    public static List<RoomType> GatheringRooms = Arrays.asList(RoomType.Magistrale);
+    public static List<RoomType> EntranceAndExitOptions = Arrays.asList(RoomType.Subway, RoomType.CarPark);
+
+
+    public static RoomType GetRandomLunchOption() {
+        return LunchOptions.get(rand.nextInt(LunchOptions.size()));
+    }
+
+    public static RoomType GetRandomLectureRoom() {
+        return LectureRooms.get(rand.nextInt(LectureRooms.size()));
+    }
+
+    public static RoomType GetRandomGatheringRoom() {
+        return RoomType.Magistrale;
+    }
+
+    public static RoomType GetRandomEntranceAndExitOption() {
+        return EntranceAndExitOptions.get(rand.nextInt(EntranceAndExitOptions.size()));
     }
 
 }
