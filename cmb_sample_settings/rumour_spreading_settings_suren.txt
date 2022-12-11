@@ -22,6 +22,7 @@ myinterface.transmitRange = 20
 
 # Define new application
 rumourApp.type = RumourApplication
+# RumourID= if val > 0: uniqueID, elif val==0: groupID, else hostAddress
 rumourApp.id = 1
 rumourApp.interval = 50
 rumourApp.sourceRange = 100,110

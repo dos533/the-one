@@ -54,7 +54,7 @@ public class RumourApplication extends Application {
 
 
 	// Private vars
-    private int rumourId = 0;
+    private int rumourId;
 	private double lastRumourCreated = 0;
 	private double	interval = 500;
 	private boolean passive = false;
@@ -146,10 +146,11 @@ public class RumourApplication extends Application {
 		}
 		if (s.contains(RUMOUR_ID)){
 			this.rumourId = s.getInt(RUMOUR_ID);
-		} else{
-			rumourId = getNextId();
+			if (this.rumourId == 0) this.rumourId = getNextId();
+		}else{
+			/** rumourId is hostAddress*/
+			this.rumourId = -1;
 		}
-
 		rng = new Random(this.seed);
 		super.setAppID(APP_ID);
 
@@ -228,8 +229,6 @@ public class RumourApplication extends Application {
 				System.out.println(msg.getId() + " " + infectProb);
 			}
 
-//			msg.printHops("r99");
-
 			if (infectProb >= senThreshold){
 				return msg;
 			}
@@ -273,6 +272,8 @@ public class RumourApplication extends Application {
 		if (curTime - this.lastRumourCreated >= this.interval && curTime < 100 && hostInRange){
 			// Rumour created only in the first few tics
 //			String msgId = SimClock.getIntTime() + "-" + host.getAddress();
+			if (rumourId<0) rumourId = host.getAddress();
+
 			String msgId = Integer.toString(rumourId);
 
 			Message m = new Message(host, randomHost(destMin, destMax), msgId, getMsgSize());
