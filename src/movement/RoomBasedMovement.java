@@ -24,10 +24,6 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
 
     private Schedule _schedule;
 
-    public RoomBase.RoomType GetCurrentRoom() {
-        return _currentRoom.GetRoomType();
-    }
-
     private boolean _scheduleFinished = false;
 
     public RoomBasedMovement(Settings settings) {
@@ -47,12 +43,14 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
         return _isEnabled;
     }
 
-    public RoomBase get_currentRoom() { return _currentRoom; }
-
     @Override
     public void setHost(DTNHost host) {
         super.setHost(host);
         this.generateSchedule(); // Can only initialize after the host has been set
+    }
+
+    public RoomBase.RoomType getRoomType(){
+        return _currentRoom.GetRoomType();
     }
 
     private void generateSchedule() {

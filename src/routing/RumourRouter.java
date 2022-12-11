@@ -9,6 +9,7 @@ import movement.MovementModel;
 import movement.RoomBasedMovement;
 import movement.room.RoomBase;
 
+import java.util.HashMap;
 import java.util.Random;
 
 /**
@@ -19,6 +20,15 @@ import java.util.Random;
  * connections at a time.
  */
 public class RumourRouter extends ActiveRouter {
+
+	private static final HashMap<String, Double> sendProb;
+	static {
+		sendProb = new HashMap<>();
+		sendProb.put("LunchOptions", .9);
+		sendProb.put("LectureRooms", .3);
+		sendProb.put("GatheringRooms", .95);
+		sendProb.put("EntranceAndExitOptions", .95);
+	}
 
 	private Random rng;
 
@@ -183,9 +193,9 @@ public class RumourRouter extends ActiveRouter {
 		double chatProb;
 		MovementModel movement = this.getHost().getMovement();
 		if (movement instanceof RoomBasedMovement){
-			RoomBase roomType = ((RoomBasedMovement) movement).get_currentRoom();
-			//		if (roomType == // TODO : probability to talk about rumour (based on schedule)
-			chatProb = 1;
+			RoomBase.RoomType roomCategory = ((RoomBasedMovement) movement).getRoomType();
+			String cat = RoomBase.getRoomCategory(roomCategory);
+			chatProb = sendProb.get(cat);
 		}else{
 			chatProb = 1;
 		}
