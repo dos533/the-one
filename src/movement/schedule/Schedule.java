@@ -68,8 +68,11 @@ public class Schedule {
             return Schedule.forStudent(seed);
         } else if (host.groupId.equals("professor")) {
             return Schedule.forProfessor(seed);
+        } else if (host.groupId.equals("barista")) {
+            return Schedule.forBarista(seed);
         } else {
-            return Schedule.empty();
+                return Schedule.empty();
+
         }
     }
 
@@ -229,6 +232,40 @@ public class Schedule {
         }
 
         System.out.println("GENERATED PROFESSOR SCHEDULE: "+slots);
+
+        return new Schedule(slots);
+    }
+
+
+    public static Schedule forBarista(int seed) {
+        Random rng = new Random(seed);
+
+        ArrayList<ScheduleSlot> slots = new ArrayList<>();
+
+        RoomBase.RoomType workplace = RoomBase.GetRandomLunchOption();
+
+        // Somewhere between 7 and 12
+        double shiftStart = 7 + rng.nextDouble()*5;
+
+        // Somewhere between 5 and 8 hours
+        double shiftDuration = 5 + rng.nextDouble()*3;
+
+        // Somewhere in the middle of the shift
+        double breakStart = shiftStart + shiftDuration/2 + (rng.nextDouble()-0.5);
+
+        // Somewhere between 20 and 40 mins
+        double breakDuration = 0.2 + rng.nextDouble()*0.2;
+
+        double breakEnd = breakStart + breakDuration;
+        double shiftEnd = shiftStart + shiftDuration;
+
+        slots.add(new ScheduleSlot(shiftStart, breakStart-shiftStart, workplace));
+
+        slots.add(new ScheduleSlot(breakStart, breakDuration, RoomBase.GetRandomGatheringRoom()));
+
+        slots.add(new ScheduleSlot(breakEnd, shiftEnd-breakEnd, workplace));
+
+        System.out.println("GENERATED BARISTA SCHEDULE: "+slots);
 
         return new Schedule(slots);
     }
