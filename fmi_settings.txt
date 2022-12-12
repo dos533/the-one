@@ -2,7 +2,7 @@ Scenario.name = FMI
 Scenario.endTime = 36000
 Scenario.updateInterval = 1
 Scenario.simulateConnections = false
-MovementModel.worldSize = 200,220
+MovementModel.worldSize = 600, 400
 Report.nrofReports = 0
 Events.nrof = 0
 

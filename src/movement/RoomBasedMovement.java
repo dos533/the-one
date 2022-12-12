@@ -87,6 +87,7 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
         if(nextRoom.GetRoomType() != _currentRoom.GetRoomType()) {
             for (Coord c: GetPathToRoom(_currentRoom.GetRoomType(), nextRoom.GetRoomType())) {
                 p.addWaypoint(c.clone());
+                _lastWaypoint = c.clone();
             }
         }
 
