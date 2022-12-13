@@ -13,7 +13,7 @@ public class Schedule {
     private static final int START_OF_DAY = 8;
 
     private static final int NR_LECTURES_MIN = 1;
-    private static final int NR_LECTURES_MAX = 4;
+    private static final int NR_LECTURES_MAX = 3;
 
     // time in hours
     private static final int START_TIME_MIN = 8;
@@ -104,19 +104,56 @@ public class Schedule {
             // add some randomness aka people coming/leaving early/late
 
             // lets people come around quarter past the hour +- 10 mins
-            double time = lecture.time + 0.25 + (rng.nextDouble() - 0.5) * 0.2;
+            double time = lecture.time + 0.25 + (rng.nextDouble() - 0.5) * 0.33;
 
             // lets people leave around quarter to the hour +- 10 mins
-            double duration = lecture.duration - 0.5 + (rng.nextDouble() - 0.5) * 0.2;
+            double duration = lecture.duration - 0.5 + (rng.nextDouble() - 0.5) * 0.33;
 
             slots.add(new ScheduleSlot(time, duration, lecture.room));
         }
 
         slots.sort(Comparator.comparingDouble(o -> o.time));
 
-        boolean hadLunch = false;
+        // second set lunch slot
 
-        // second fill slots between lectures
+        double lunchWindow = 1;
+        pickLunchSlot: while (lunchWindow < 10) {
+
+            double lunchTime = 12 + (rng.nextDouble()-0.5) * lunchWindow;
+
+            // getting lunch takes 10 to 20 mins
+            double lunchWaitDuration = 0.166 + rng.nextDouble() * 0.166;
+
+            // eating lunch takes 20 to 40 mins
+            double lunchEatDuration = 0.33 + rng.nextDouble() * 0.33;
+
+            double lunchEndTime = lunchTime + lunchWaitDuration + lunchEatDuration;
+
+            lunchWindow += 1;
+
+            for (int j = 0; j < slots.size(); j++) {
+                ScheduleSlot slot = slots.get(j);
+                // try again if overlaps with other lecture
+                if (lunchTime <= slot.time && lunchEndTime >= slot.time + slot.duration) {
+                    continue pickLunchSlot;
+                }
+            }
+
+            // getting lunch
+            RoomBase.RoomType lunchRoom = RoomBase.GetRandomLunchOption();
+            slots.add(new ScheduleSlot(lunchTime, lunchWaitDuration, lunchRoom));
+
+
+            // eating lunch
+            RoomBase.RoomType eatRoom = RoomBase.GetRandomGatheringRoom();
+            slots.add(new ScheduleSlot(lunchTime + lunchWaitDuration, lunchEatDuration, eatRoom));
+
+            break;
+        }
+
+        slots.sort(Comparator.comparingDouble(o -> o.time));
+
+        // third fill slots between lectures / lunch
         int i = 0;
         while (i < slots.size()-1) {
 
@@ -126,25 +163,36 @@ public class Schedule {
             double start = l1.time + l1.duration;
             double gap = l2.time - start;
 
-            // go for lunch only if at least 20 mins time and after 10:30
+            // add some seminars / study time between lectures
+            if (gap >= 0.7 && rng.nextInt(3) > 1) {
 
-            if (!hadLunch && start >= 10.5 && gap > 0.2) {
-                double gettingLunchDuration = 0.1;
+                double studyTime = start + rng.nextDouble() * 0.166;
 
-                // getting lunch (10 mins)
-                RoomBase.RoomType room = RoomBase.GetRandomLunchOption();
-                slots.add(++i, new ScheduleSlot(start, gettingLunchDuration, room));
-                hadLunch = true;
+                // 30 mins to all available time
+                double studyDuration = 0.5 + rng.nextDouble() * (gap - 0.5 - (studyTime-start));
 
-                // eating lunch (rest available time)
-                RoomBase.RoomType room2 = RoomBase.GetRandomGatheringRoom();
-                slots.add(++i, new ScheduleSlot(start + gettingLunchDuration, gap - gettingLunchDuration, room2));
+                if (studyTime > start) {
+                    // just hangout before
+                    RoomBase.RoomType room = RoomBase.GetRandomGatheringRoom();
+                    slots.add(++i, new ScheduleSlot(start, studyTime - start, room));
+                }
+
+                // seminars or study time are just somewhere in a wing
+                RoomBase.RoomType wing = RoomBase.GetRandomWing();
+                slots.add(++i, new ScheduleSlot(studyTime, studyDuration, wing));
+
+                if (studyTime + studyDuration < l2.time) {
+                    // just hangout after
+                    RoomBase.RoomType room = RoomBase.GetRandomGatheringRoom();
+                    slots.add(++i, new ScheduleSlot(studyTime + studyDuration, l2.time - studyTime - studyDuration, room));
+                }
 
             } else {
                 // just hangout for the available time
                 RoomBase.RoomType room = RoomBase.GetRandomGatheringRoom();
                 slots.add(++i, new ScheduleSlot(start, gap, room));
             }
+
             i++;
         }
 
