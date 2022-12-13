@@ -192,13 +192,14 @@ public class RumourRouter extends ActiveRouter {
 	public double getSendProbability(){
 		double chatProb;
 		MovementModel movement = this.getHost().getMovement();
-		if (movement instanceof RoomBasedMovement){
+//		if (movement instanceof RoomBasedMovement){
 			RoomBase.RoomType roomCategory = ((RoomBasedMovement) movement).getRoomType();
 			String cat = RoomBase.getRoomCategory(roomCategory);
 			chatProb = sendProb.get(cat);
-		}else{
-			chatProb = 1;
-		}
+			System.out.println("Chat prob: " + chatProb);
+//		}else{
+//			chatProb = 1;
+//		}
 
 		return chatProb;
 	}

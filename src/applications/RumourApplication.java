@@ -235,18 +235,19 @@ public class RumourApplication extends Application {
 
 		if (type.equalsIgnoreCase("rumour")){
 			super.sendEventToListeners("receivedRumour", msg, host);
+			System.out.println("Message received : " + msg.getId());
 
 			addReceivedMessage(msg, host);
 
 			double real = (double) msg.getProperty("real");	// Realistic or not (given as percentage)
 			double infectProb = getConfidence(msg, host, real);	// Confidence of the message received by the sender
 
-			if (host.getAddress()==124){
-				System.out.print(host.getAddress());
-				System.out.println(host.getMessageCollection());
-				System.out.println(this.msgReceived.toString());
-				System.out.println(msg.getId() + " " + infectProb);
-			}
+//			if (host.getAddress()==124){
+//				System.out.print(host.getAddress());
+//				System.out.println(host.getMessageCollection());
+//				System.out.println(this.msgReceived.toString());
+//				System.out.println(msg.getId() + " " + infectProb);
+//			}
 
 			if (infectProb >= senThreshold){
 				return msg;
@@ -254,7 +255,6 @@ public class RumourApplication extends Application {
 			else{
 				return null;
 			}
-
 		}
 
 		return msg;
@@ -292,7 +292,7 @@ public class RumourApplication extends Application {
 			// Rumour created only in the first few tics
 //			String msgId = SimClock.getIntTime() + "-" + host.getAddress();
 			if (rumourId<0) rumourId = host.getAddress();
-			System.out.println(rumourId);
+			System.out.println("Message created : " + rumourId);
 
 			String msgId = Integer.toString(rumourId);
 
