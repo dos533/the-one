@@ -85,14 +85,33 @@ public class RumourApplication extends Application {
 		trustMap.get("professor").put("professor", 0.95);
 		trustMap.get("professor").put("student", 0.5);
 		trustMap.get("professor").put("cleaner", 0.6);
+		trustMap.get("professor").put("barista", 0.6);
+		trustMap.get("professor").put("visitor", 0.7);
 
 		trustMap.get("student").put("student", 0.8);
 		trustMap.get("student").put("professor", 0.95);
 		trustMap.get("student").put("cleaner", 0.6);
+		trustMap.get("student").put("barista", 0.6);
+		trustMap.get("student").put("visitor", 0.7);
 
 		trustMap.get("cleaner").put("student", 0.5);
 		trustMap.get("cleaner").put("professor", 0.8);
 		trustMap.get("cleaner").put("cleaner", 0.8);
+		trustMap.get("cleaner").put("barista", 0.6);
+		trustMap.get("cleaner").put("visitor", 0.7);
+
+		trustMap.get("barista").put("student", 0.5);
+		trustMap.get("barista").put("professor", 0.8);
+		trustMap.get("barista").put("cleaner", 0.8);
+		trustMap.get("barista").put("barista", 0.6);
+		trustMap.get("barista").put("visitor", 0.7);
+
+		trustMap.get("visitor").put("student", 0.5);
+		trustMap.get("visitor").put("professor", 0.8);
+		trustMap.get("visitor").put("cleaner", 0.8);
+		trustMap.get("visitor").put("barista", 0.6);
+		trustMap.get("visitor").put("visitor", 0.7);
+
 	}
 
 	/**
@@ -273,6 +292,7 @@ public class RumourApplication extends Application {
 			// Rumour created only in the first few tics
 //			String msgId = SimClock.getIntTime() + "-" + host.getAddress();
 			if (rumourId<0) rumourId = host.getAddress();
+			System.out.println(rumourId);
 
 			String msgId = Integer.toString(rumourId);
 

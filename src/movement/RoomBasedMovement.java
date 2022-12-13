@@ -32,6 +32,7 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
         super(settings);
         this._currentRoom = RoomBase.AllRooms.get(RoomBase.RoomType.Subway);
         this._isEnabled = true;
+        
     }
 
     public RoomBasedMovement(RoomBasedMovement prototype) {
