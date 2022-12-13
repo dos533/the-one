@@ -18,7 +18,6 @@ public class Magistrale extends RoomBase{
         roomDoors.put(RoomType.LectureHall03, new Coord(425, 240.625));
         roomDoors.put(RoomType.Lunch, new Coord(350, 234.25));
         roomDoors.put(RoomType.Cafe, new Coord(390, 230));
-        roomDoors.put(RoomType.VendingMachine, new Coord(380, 265));
         roomDoors.put(RoomType.Wing04, new Coord(503, 235));
         roomDoors.put(RoomType.Wing05, new Coord(435, 150));
         roomDoors.put(RoomType.Wing06, new Coord(455, 244.375));

@@ -8,7 +8,7 @@ import java.util.List;
 public class VendingMachine extends RoomBase{
     public VendingMachine() {
         super(RoomType.VendingMachine, false);
-        roomDoors.put(RoomType.Magistrale, new Coord(380, 265));
+        roomDoors.put(RoomType.Wing08, new Coord(380, 265));
     }
 
     @Override

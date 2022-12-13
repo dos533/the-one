@@ -8,6 +8,8 @@ import movement.room.RoomBase;
 import movement.schedule.Schedule;
 import util.PolygonUtils;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -129,6 +131,9 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
         for(int i = 0; i < path.size() - 1; i++ ){
             doors[i] = RoomBase.AllRooms.get(pathArray[i]).GetDoorToRoom(pathArray[i + 1]);
         }
+
+        //reverse the order to get path from start to finish
+        Collections.reverse(Arrays.asList(doors));
 
         return doors;
 
