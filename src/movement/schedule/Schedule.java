@@ -10,12 +10,14 @@ import java.util.Random;
 
 public class Schedule {
 
+    private static final int START_OF_DAY = 8;
+
     private static final int NR_LECTURES_MIN = 1;
     private static final int NR_LECTURES_MAX = 4;
 
     // time in hours
     private static final int START_TIME_MIN = 8;
-    private static final int START_TIME_MAX = 16;
+    private static final int START_TIME_MAX = 18;
 
     ArrayList<ScheduleSlot> slots;
     RoomBase.RoomType exitRoom;
@@ -243,11 +245,11 @@ public class Schedule {
 
         RoomBase.RoomType workplace = RoomBase.GetRandomLunchOption();
 
-        // Somewhere between 7 and 12
-        double shiftStart = 7 + rng.nextDouble()*5;
+        // Somewhere between 8 and 12
+        double shiftStart = START_OF_DAY + rng.nextDouble()*4;
 
-        // Somewhere between 5 and 8 hours
-        double shiftDuration = 5 + rng.nextDouble()*3;
+        // Somewhere between 4 and 7 hours
+        double shiftDuration = 4 + rng.nextDouble()*3;
 
         // Somewhere in the middle of the shift
         double breakStart = shiftStart + shiftDuration/2 + (rng.nextDouble()-0.5);
@@ -276,7 +278,7 @@ public class Schedule {
         }
 
 
-        double currentTimeAsHourOfDay = 7 + (currentTime / 60 / 60);
+        double currentTimeAsHourOfDay = START_OF_DAY + (currentTime / 60 / 60);
 
         if (currentTimeAsHourOfDay < slots.get(0).time) {
             return getExitRoom();
@@ -300,13 +302,13 @@ public class Schedule {
     }
 
     public double getNextSlotTime(double currentTime) {
-        double currentTimeAsHourOfDay = 7 + (currentTime / 60 / 60);
+        double currentTimeAsHourOfDay = START_OF_DAY + (currentTime / 60 / 60);
 
         for (ScheduleSlot slot : slots) {
             if (currentTimeAsHourOfDay < slot.time) {
-                return (slot.time - 7) * 3600;
+                return (slot.time - START_OF_DAY) * 3600;
             } else if (currentTimeAsHourOfDay < slot.time + slot.duration) {
-                return (slot.time + slot.duration - 7) * 3600;
+                return (slot.time + slot.duration - START_OF_DAY) * 3600;
             }
         }
 
