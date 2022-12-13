@@ -1,5 +1,5 @@
 Scenario.name = FMI
-Scenario.endTime = 36000
+Scenario.endTime = 430000
 Scenario.updateInterval = 1
 Scenario.simulateConnections = false
 MovementModel.worldSize = 600, 400
@@ -11,22 +11,58 @@ myInterface.type = SimpleBroadcastInterface
 myInterface.transmitRange = 0
 myInterface.transmitSpeed = 0
 
-## legit just have this to render the room....
-Scenario.nrofHostGroups = 2
-Group.nrofHosts = 1
-Group.nrofInterfaces = 0
-Group1.groupID = a
+
+# Groups
+Scenario.nrofHostGroups = 6
+
+Group1.groupID = professor
 Group1.nrofHosts = 1
-Group1.movementModel = MapBasedMovement
+Group1.nrofInterfaces = 1
+Group1.interface1 = myInterface
+Group1.movementModel = RoomBasedMovement
 Group1.router = PassiveRouter
 
-
-Group2.groupID = x
-Group2.nrofHosts = 5
-Group2.router = PassiveRouter
+Group2.groupID = student
+Group2.nrofHosts = 10
+Group2.nrofInterfaces = 1
+Group2.interface1 = myInterface
 Group2.movementModel = RoomBasedMovement
+Group2.router = PassiveRouter
 
+Group3.groupID = cleaner
+Group3.nrofHosts = 10
+Group3.nrofInterfaces = 1
+Group3.interface1 = myInterface
+Group3.movementModel = RoomBasedMovement
+Group3.router = PassiveRouter
+
+Group4.groupID = barista
+Group4.nrofHosts = 10
+Group4.nrofInterfaces = 1
+Group4.interface1 = myInterface
+Group4.movementModel = RoomBasedMovement
+Group4.router = PassiveRouter
+
+Group5.groupID = visitor
+Group5.nrofHosts = 10
+Group5.nrofInterfaces = 1
+Group5.interface1 = myInterface
+Group5.movementModel = RoomBasedMovement
+Group5.router = PassiveRouter
+
+
+## legit just have this to render the room....
+Group6.groupID = a
+Group6.nrofInterfaces = 0
+Group6.nrofHosts = 1
+Group6.movementModel = MapBasedMovement
+Group6.router = PassiveRouter
+Group5.interface1 = myInterface
+
+
+# Mapfile as overlay
 MapBasedMovement.nrofMapFiles = 1
 MapBasedMovement.mapFile1 = data/testTwo.wkt
 
 Schedule.RNG_SEED = 1
+
