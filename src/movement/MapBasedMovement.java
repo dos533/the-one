@@ -303,11 +303,11 @@ public class MapBasedMovement extends MovementModel implements SwitchableMovemen
 		simMap = r.getMap();
 		checkMapConnectedness(simMap.getNodes());
 		// mirrors the map (y' = -y) and moves its upper left corner to origo
-//		/* Dont :)
+		/* Dont :)
 		simMap.mirror();
 		Coord offset = simMap.getMinBound().clone();
 		simMap.translate(-offset.getX(), -offset.getY());
-//		*/
+		*/
 
 		checkCoordValidity(simMap.getNodes());
 
