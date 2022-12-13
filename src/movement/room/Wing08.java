@@ -10,6 +10,7 @@ public class Wing08 extends RoomBase{
     public Wing08() {
         super(RoomType.Wing08, new Timeframe(30, 300), false);
         roomDoors.put(RoomType.Magistrale, new Coord(375, 234.375));
+        roomDoors.put(RoomType.VendingMachine, new Coord(380, 265));
     }
 
     @Override
