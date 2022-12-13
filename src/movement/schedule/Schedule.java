@@ -31,6 +31,7 @@ public class Schedule {
         Random rng = new Random(s.getInt("RNG_SEED"));
 
         int nrLectures = RoomBase.LectureRooms.size() * 4;
+
         // this might never stop if generating non-overlapping lectures is not possible
         generateNextLecture: while (lectures.size() < nrLectures) {
 
@@ -217,6 +218,7 @@ public class Schedule {
             Lecture lecture = chooseFromLectures.get(index);
 
             if (lecture.professor != -1) {
+                chooseFromLectures.remove(index);
                 continue;
             }
 
