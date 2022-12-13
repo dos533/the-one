@@ -29,7 +29,7 @@ rumourApp.type = RumourApplication
 # RumourID= if val > 0: uniqueID, elif val==0: groupID, else hostAddress
 rumourApp.id = -1
 rumourApp.interval = 50
-rumourApp.sourceRange = 100,110
+rumourApp.sourceRange = 20,30
 rumourApp.destinationRange = 0,0
 rumourApp.msgSize = 5
 rumourApp.passive = false
@@ -37,7 +37,7 @@ rumourApp.receiveThreshold = 10
 rumourApp.sendThreshold = 0.9
 
 # Groups
-Scenario.nrofHostGroups = 6
+Scenario.nrofHostGroups = 7
 
 # common settings for all groups
 Group.router = RumourRouter
@@ -55,37 +55,30 @@ Group.speed = 0.5, 1.5
 Group.nrofApplications = 1
 Group.application1 = rumourApp
 
-
-Group1.groupID = professor
+Group1.groupID = dest
 Group1.nrofHosts = 1
+Group1.movementModel = StationaryMovement
+Group1.nodeLocation = 0,0
+Group1.nrofInterfaces = 0
 
-Group2.groupID = student
-Group2.nrofHosts = 10
+Group2.groupID = professor
+Group2.nrofHosts = 1
 
-Group3.groupID = cleaner
+Group3.groupID = student
 Group3.nrofHosts = 10
 
-Group4.groupID = barista
+Group4.groupID = cleaner
 Group4.nrofHosts = 10
 
-Group5.groupID = visitor
+Group5.groupID = barista
 Group5.nrofHosts = 10
+
+Group6.groupID = visitor
+Group6.nrofHosts = 10
 
 ## Message creation parameters
 # How many event generators
 Events.nrof = 0
-# Class of the first event generator
-Events1.class = SingleMessageGenerator
-# (following settings are specific for the MessageEventGenerator class)
-# Creation interval in seconds (one new message every 25 to 35 seconds)
-Events1.interval = 100k,100k
-# Message sizes (50kB - 150kB)
-Events1.size = 50k,150k
-# range of message source/destination addresses
-Events1.hosts = 1,40
-Events1.toHosts = 0,0
-# Message ID prefix
-Events1.prefix = M
 
 
 # how many reports to load
@@ -105,11 +98,11 @@ Optimization.cellSizeMult = 5
 Optimization.randomizeUpdateOrder = true
 
 ## legit just have this to render the room....
-Group6.groupID = a
-Group6.nrofInterfaces = 0
-Group6.nrofHosts = 1
-Group6.movementModel = MapBasedMovement
-Group6.router = PassiveRouter
+Group7.groupID = a
+Group7.nrofInterfaces = 0
+Group7.nrofHosts = 1
+Group7.movementModel = MapBasedMovement
+Group7.router = PassiveRouter
 
 
 # Mapfile as overlay
