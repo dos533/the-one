@@ -137,12 +137,17 @@ public abstract class RoomBase {
         CarPark,
     }
 
-    public static List<RoomType> LunchOptions = Arrays.asList(RoomType.Cafe, RoomType.Lunch, RoomType.VendingMachine);
-    public static List<RoomType> LectureRooms = Arrays.asList(RoomType.LectureHall01, RoomType.LectureHall02, RoomType.LectureHall03);
-    public static List<RoomType> GatheringRooms = Arrays.asList(RoomType.Magistrale);
-    public static List<RoomType> Wings = Arrays.asList(RoomType.Wing04, RoomType.Wing05, RoomType.Wing06, RoomType.Wing07, RoomType.Wing08, RoomType.Wing09, RoomType.Wing10, RoomType.Wing11, RoomType.Wing12, RoomType.Wing13);
-    public static List<RoomType> EntranceAndExitOptions = Arrays.asList(RoomType.Subway, RoomType.CarPark);
+    // people can also go outside to get lunch
+    public static List<RoomType> LunchOptions = Arrays.asList(RoomType.Cafe, RoomType.Lunch, RoomType.VendingMachine, RoomType.Outside);
 
+    public static List<RoomType> LectureRooms = Arrays.asList(RoomType.LectureHall01, RoomType.LectureHall02, RoomType.LectureHall03);
+
+    // people can also gather outside or in the library, but magistrale is three times as likely
+    public static List<RoomType> GatheringRooms = Arrays.asList(RoomType.Magistrale, RoomType.Magistrale, RoomType.Magistrale, RoomType.Outside, RoomType.Library);
+
+    public static List<RoomType> Wings = Arrays.asList(RoomType.Wing04, RoomType.Wing05, RoomType.Wing06, RoomType.Wing07, RoomType.Wing08, RoomType.Wing09, RoomType.Wing10, RoomType.Wing11, RoomType.Wing12, RoomType.Wing13);
+
+    public static List<RoomType> EntranceAndExitOptions = Arrays.asList(RoomType.Subway, RoomType.CarPark);
 
     public static RoomType GetRandomLunchOption() {
         return LunchOptions.get(rand.nextInt(LunchOptions.size()));
@@ -153,10 +158,12 @@ public abstract class RoomBase {
     }
 
     public static RoomType GetRandomGatheringRoom() {
-        return RoomType.Magistrale;
+        return GatheringRooms.get(rand.nextInt(GatheringRooms.size()));
     }
 
-    public static RoomType GetRandomWing() { return Wings.get(rand.nextInt(Wings.size())); }
+    public static RoomType GetRandomWing() {
+        return Wings.get(rand.nextInt(Wings.size()));
+    }
 
     public static RoomType GetRandomEntranceAndExitOption() {
         return EntranceAndExitOptions.get(rand.nextInt(EntranceAndExitOptions.size()));

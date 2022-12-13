@@ -54,8 +54,7 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
     }
 
     private void generateSchedule() {
-        int seed = host.getAddress();
-        _schedule = Schedule.fromSeed(seed);
+        _schedule = Schedule.generateForHost(host);
     }
 
     @Override
