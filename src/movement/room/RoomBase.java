@@ -1,6 +1,8 @@
 package movement.room;
 
 import core.Coord;
+import core.Settings;
+import movement.MovementModel;
 import util.PolygonUtils;
 import util.Timeframe;
 
@@ -9,7 +11,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class RoomBase {
-
     public static Map<RoomType, RoomBase> AllRooms = Stream.of(new Object[][]{
             {RoomType.Subway, new Subway()},
             {RoomType.Outside, new Outside()},
@@ -135,6 +136,18 @@ public abstract class RoomBase {
         Outside,
         Subway,
         CarPark,
+    }
+
+
+    public static void setSeed() {
+        Settings s = new Settings(MovementModel.MOVEMENT_MODEL_NS);
+        if (s.contains(MovementModel.RNG_SEED)) {
+            int seed = s.getInt(MovementModel.RNG_SEED);
+            rand.setSeed(seed);
+        }
+        else {
+            rand.setSeed(0);
+        }
     }
 
     // people can also go outside to get lunch
