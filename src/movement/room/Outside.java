@@ -10,7 +10,7 @@ public class Outside extends RoomBase{
 
     public Outside() {
         super(RoomType.Outside, new Timeframe(30, 100), false);
-        roomDoors.put(RoomType.Magistrale, new Coord(485, 400));
+        roomDoors.put(RoomType.Magistrale, new Coord(485, 150));
         roomDoors.put(RoomType.Subway, new Coord(485, 100));
     }
 
