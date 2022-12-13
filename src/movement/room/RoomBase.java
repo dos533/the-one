@@ -149,6 +149,14 @@ public abstract class RoomBase {
 
     public static List<RoomType> EntranceAndExitOptions = Arrays.asList(RoomType.Subway, RoomType.CarPark);
 
+    public static String getRoomCategory(RoomType roomType){
+        if (LunchOptions.contains(roomType)) return "LunchOptions";
+        if (LectureRooms.contains(roomType)) return "LectureRooms";
+        if (GatheringRooms.contains(roomType)) return "GatheringRooms";
+        if (EntranceAndExitOptions.contains(roomType)) return "EntranceAndExitOptions";
+        return null;
+    }
+
     public static RoomType GetRandomLunchOption() {
         return LunchOptions.get(rand.nextInt(LunchOptions.size()));
     }

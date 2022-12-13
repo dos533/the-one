@@ -71,8 +71,7 @@ public class Schedule {
         } else if (host.groupId.equals("barista")) {
             return Schedule.forBarista(seed);
         } else {
-                return Schedule.empty();
-
+            return Schedule.empty();
         }
     }
 
@@ -271,6 +270,10 @@ public class Schedule {
     }
 
     public RoomBase getNextRoom(double currentTime) {
+
+        if (slots.isEmpty()) {
+            return getExitRoom();
+        }
 
         double currentTimeAsHourOfDay = 7 + (currentTime / 60 / 60);
 
