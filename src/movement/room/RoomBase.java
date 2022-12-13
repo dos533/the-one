@@ -34,19 +34,7 @@ public abstract class RoomBase {
             {RoomType.CarPark, new CarPark()}
     }).collect(Collectors.toMap(data -> (RoomType) data[0], data -> (RoomBase) data[1]));
 
-    private static Random rand = getSeed();
-
-
-    private static Random getSeed() {
-        Settings s = new Settings(MovementModel.MOVEMENT_MODEL_NS);
-        if (s.contains(MovementModel.RNG_SEED)) {
-            int seed = s.getInt(MovementModel.RNG_SEED);
-            return new Random(seed);
-        }
-        else {
-            return new Random(0);
-        }
-    }
+    private static Random rand = new Random();
 
     private RoomType _type = RoomType.None;
     private boolean _doRandomWalk;
@@ -148,6 +136,18 @@ public abstract class RoomBase {
         Outside,
         Subway,
         CarPark,
+    }
+
+
+    public static void setSeed() {
+        Settings s = new Settings(MovementModel.MOVEMENT_MODEL_NS);
+        if (s.contains(MovementModel.RNG_SEED)) {
+            int seed = s.getInt(MovementModel.RNG_SEED);
+            rand.setSeed(seed);
+        }
+        else {
+            rand.setSeed(0);
+        }
     }
 
     // people can also go outside to get lunch
