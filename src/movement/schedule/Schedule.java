@@ -15,7 +15,7 @@ public class Schedule {
 
     // time in hours
     private static final int START_TIME_MIN = 8;
-    private static final int START_TIME_MAX = 18;
+    private static final int START_TIME_MAX = 16;
 
     ArrayList<ScheduleSlot> slots;
     RoomBase.RoomType exitRoom;
@@ -146,7 +146,7 @@ public class Schedule {
             i++;
         }
 
-        System.out.println("GENERATED STUDENT SCHEDULE: "+slots);
+        System.out.println("Student Schedule "+seed+": "+slots);
 
         return new Schedule(slots);
     }
@@ -230,7 +230,7 @@ public class Schedule {
             i++;
         }
 
-        System.out.println("GENERATED PROFESSOR SCHEDULE: "+slots);
+        System.out.println("Professor Schedule "+seed+": "+slots);
 
         return new Schedule(slots);
     }
@@ -264,7 +264,7 @@ public class Schedule {
 
         slots.add(new ScheduleSlot(breakEnd, shiftEnd-breakEnd, workplace));
 
-        System.out.println("GENERATED BARISTA SCHEDULE: "+slots);
+        System.out.println("Barista Schedule "+seed+": "+slots);
 
         return new Schedule(slots);
     }
@@ -274,6 +274,7 @@ public class Schedule {
         if (slots.isEmpty()) {
             return getExitRoom();
         }
+
 
         double currentTimeAsHourOfDay = 7 + (currentTime / 60 / 60);
 
@@ -303,7 +304,9 @@ public class Schedule {
 
         for (ScheduleSlot slot : slots) {
             if (currentTimeAsHourOfDay < slot.time) {
-                return slot.time;
+                return (slot.time - 7) * 3600;
+            } else if (currentTimeAsHourOfDay < slot.time + slot.duration) {
+                return (slot.time + slot.duration - 7) * 3600;
             }
         }
 

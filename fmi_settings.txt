@@ -1,5 +1,5 @@
 Scenario.name = FMI
-Scenario.endTime = 36000
+Scenario.endTime = 43000
 Scenario.updateInterval = 1
 Scenario.simulateConnections = false
 MovementModel.worldSize = 600, 400
@@ -20,9 +20,8 @@ Group1.nrofHosts = 1
 Group1.movementModel = MapBasedMovement
 Group1.router = PassiveRouter
 
-
-Group2.groupID = x
-Group2.nrofHosts = 5
+Group2.groupID = student
+Group2.nrofHosts = 50
 Group2.router = PassiveRouter
 Group2.movementModel = RoomBasedMovement
 
