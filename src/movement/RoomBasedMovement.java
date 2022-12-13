@@ -176,10 +176,10 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
     public Coord getInitialLocation() {
         if (_lastWaypoint == null) {
             //start at subway exit
-            System.out.println("spawning at subway");
-            _lastWaypoint = PolygonUtils.RandomPointInside(RoomBase.AllRooms.get(RoomBase.RoomType.Subway).GetPolygon());
-            _currentRoom = RoomBase.AllRooms.get(RoomBase.RoomType.Subway);
-            _nextRoom = RoomBase.AllRooms.get(RoomBase.RoomType.Subway);
+            _currentRoom = _schedule.getNextRoom(0);
+            System.out.println("Spawning at "+_currentRoom.getClass().getSimpleName());
+            _nextRoom = _currentRoom;
+            _lastWaypoint = PolygonUtils.RandomPointInside(_currentRoom.GetPolygon());
         }
 
         return _lastWaypoint.clone();
