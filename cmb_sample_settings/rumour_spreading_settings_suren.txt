@@ -7,7 +7,7 @@ Scenario.name = cluster_spreading
 Scenario.simulateConnections = true
 Scenario.updateInterval = 0.1
 # 43k ~= 12h
-Scenario.endTime = 1k
+Scenario.endTime = 2k
 
 firstinterface.type = RumourInterface
 # transmit speed of 2 Mbps = 250kBps
@@ -22,11 +22,15 @@ myinterface.transmitRange = 20
 
 # Define new application
 rumourApp.type = RumourApplication
+# RumourID= if val > 0: uniqueID, elif val==0: groupID, else hostAddress
+rumourApp.id = 1
 rumourApp.interval = 50
-rumourApp.destinationRange = 0,125
-rumourApp.pingSize = 5
-rumourApp.pongSize = 5
+rumourApp.sourceRange = 100,110
+rumourApp.destinationRange = 0,0
+rumourApp.msgSize = 5
 rumourApp.passive = false
+rumourApp.receiveThreshold = 10
+rumourApp.sendThreshold = 0.9
 
 Scenario.nrofHostGroups = 6
 
@@ -46,7 +50,7 @@ Group.nrofHosts = 40
 # Group.nrofApplications = 0
 
 
-# Set Ping app for all nodes
+# Set app for all nodes
 Group.nrofApplications = 1
 Group.application1 = rumourApp
 
@@ -56,16 +60,16 @@ Group1.movementModel = StationaryMovement
 Group1.nodeLocation = 0,0
 Group1.nrofInterfaces = 0
 
-Group2.groupID = p
+Group2.groupID = cleaner
 
-Group3.groupID = q
+Group3.groupID = student
 Group3.clusterCenter = 600, 100
 
-Group4.groupID = r
+Group4.groupID = professor
 Group4.clusterCenter = 350, 533
 
 # The Tram groups
-Group5.groupID = s
+Group5.groupID = student
 Group5.bufferSize = 50M
 Group5.movementModel = MapRouteMovement
 Group5.routeFile = data/cluster/ferryroute.wkt
@@ -77,7 +81,7 @@ Group5.nrofInterfaces = 1
 Group5.interface1 = firstinterface
 
 # The Tram groups
-Group6.groupID = t
+Group6.groupID = professor
 Group6.bufferSize = 50M
 Group6.movementModel = MapRouteMovement
 Group6.routeFile = data/cluster/ferryroute.wkt

@@ -5,7 +5,11 @@
 package routing;
 
 import core.*;
+import movement.MovementModel;
+import movement.RoomBasedMovement;
+import movement.room.RoomBase;
 
+import java.util.HashMap;
 import java.util.Random;
 
 /**
@@ -16,6 +20,15 @@ import java.util.Random;
  * connections at a time.
  */
 public class RumourRouter extends ActiveRouter {
+
+	private static final HashMap<String, Double> sendProb;
+	static {
+		sendProb = new HashMap<>();
+		sendProb.put("LunchOptions", .9);
+		sendProb.put("LectureRooms", .3);
+		sendProb.put("GatheringRooms", .95);
+		sendProb.put("EntranceAndExitOptions", .95);
+	}
 
 	private Random rng;
 
@@ -52,13 +65,13 @@ public class RumourRouter extends ActiveRouter {
 			return; // transferring, don't try other connections yet
 		}
 
-		// Try first the messages that can be delivered to final recipient
-		if (exchangeDeliverableMessages() != null) {
-			return; // started a transfer, don't try others (yet)
-		}
-
 		double chatProb = getSendProbability();
 		if (rng.nextDouble() <= chatProb) {
+			// Try first the messages that can be delivered to final recipient
+			if (exchangeDeliverableMessages() != null) {
+				return; // started a transfer, don't try others (yet)
+			}
+
 			// then try any/all message to any/all connection
 			this.tryAllMessagesToAllConnections();
 		}
@@ -106,7 +119,7 @@ public class RumourRouter extends ActiveRouter {
 		isFinalRecipient = false;
 		isFirstDelivery = false;
 
-		if (!isFinalRecipient && outgoing!=null) {
+		if (outgoing!=null) {
 			// not the final recipient and app doesn't want to drop the message
 			// -> put to buffer
 			addToMessages(aMessage, false);
@@ -146,10 +159,9 @@ public class RumourRouter extends ActiveRouter {
 			return TRY_LATER_BUSY; // only one connection at a time
 		}
 
-//		TODO : Do not ignore repetitive messages
-//		if ( hasMessage(m.getId()) || isDeliveredMessage(m) || super.isBlacklistedMessage(m.getId())) {
-//			return DENIED_OLD; // already seen this message -> reject it
-//		}
+		if ( hasMessage(m.getId()) || isDeliveredMessage(m) || super.isBlacklistedMessage(m.getId())) {
+			return DENIED_OLD; // already seen this message -> reject it
+		}
 
 		if (m.getTtl() <= 0 && m.getTo() != getHost()) {
 			/* TTL has expired and this host is not the final recipient */
@@ -178,8 +190,16 @@ public class RumourRouter extends ActiveRouter {
 	 * @return the probability of sending the message based on schedule
 	 */
 	public double getSendProbability(){
-		// TODO : return probability of sending the message
-		double chatProb = 1; // TODO : probability to talk about rumour (based on schedule)
+		double chatProb;
+		MovementModel movement = this.getHost().getMovement();
+		if (movement instanceof RoomBasedMovement){
+			RoomBase.RoomType roomCategory = ((RoomBasedMovement) movement).getRoomType();
+			String cat = RoomBase.getRoomCategory(roomCategory);
+			chatProb = sendProb.get(cat);
+		}else{
+			chatProb = 1;
+		}
+
 		return chatProb;
 	}
 
