@@ -1,5 +1,5 @@
 Scenario.name = FMI
-Scenario.endTime = 430000
+Scenario.endTime = 43000
 Scenario.updateInterval = 1
 Scenario.simulateConnections = false
 MovementModel.worldSize = 600, 400
