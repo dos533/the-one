@@ -8,6 +8,8 @@ import movement.room.RoomBase;
 import movement.schedule.Schedule;
 import util.PolygonUtils;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -54,8 +56,7 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
     }
 
     private void generateSchedule() {
-        int seed = host.getAddress();
-        _schedule = Schedule.fromSeed(seed);
+        _schedule = Schedule.generateForHost(host);
     }
 
     @Override
@@ -87,6 +88,7 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
         if(nextRoom.GetRoomType() != _currentRoom.GetRoomType()) {
             for (Coord c: GetPathToRoom(_currentRoom.GetRoomType(), nextRoom.GetRoomType())) {
                 p.addWaypoint(c.clone());
+                _lastWaypoint = c.clone();
             }
         }
 
@@ -129,6 +131,9 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
         for(int i = 0; i < path.size() - 1; i++ ){
             doors[i] = RoomBase.AllRooms.get(pathArray[i]).GetDoorToRoom(pathArray[i + 1]);
         }
+
+        //reverse the order to get path from start to finish
+        Collections.reverse(Arrays.asList(doors));
 
         return doors;
 
@@ -176,10 +181,10 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
     public Coord getInitialLocation() {
         if (_lastWaypoint == null) {
             //start at subway exit
-            System.out.println("spawning at subway");
-            _lastWaypoint = PolygonUtils.RandomPointInside(RoomBase.AllRooms.get(RoomBase.RoomType.Subway).GetPolygon());
-            _currentRoom = RoomBase.AllRooms.get(RoomBase.RoomType.Subway);
-            _nextRoom = RoomBase.AllRooms.get(RoomBase.RoomType.Subway);
+            _currentRoom = _schedule.getNextRoom(0);
+            System.out.println("Spawning at "+_currentRoom.getClass().getSimpleName());
+            _nextRoom = _currentRoom;
+            _lastWaypoint = PolygonUtils.RandomPointInside(_currentRoom.GetPolygon());
         }
 
         return _lastWaypoint.clone();

@@ -16,6 +16,21 @@ public abstract class RoomBase {
             {RoomType.Magistrale, new Magistrale()},
             {RoomType.LectureHall01, new Lecture1()},
             {RoomType.Cafe, new Cafe()},
+            {RoomType.LectureHall02, new Lecture2()},
+            {RoomType.LectureHall03, new Lecture3()},
+            {RoomType.Lunch, new Lunch()},
+            {RoomType.VendingMachine, new VendingMachine()},
+            {RoomType.Wing04, new Wing04()},
+            {RoomType.Wing05, new Wing05()},
+            {RoomType.Wing06, new Wing06()},
+            {RoomType.Wing07, new Wing07()},
+            {RoomType.Wing08, new Wing08()},
+            {RoomType.Wing09, new Wing09()},
+            {RoomType.Wing10, new Wing10()},
+            {RoomType.Wing11, new Wing11()},
+            {RoomType.Wing12, new Wing12()},
+            {RoomType.Wing13, new Wing13()},
+            {RoomType.CarPark, new CarPark()}
     }).collect(Collectors.toMap(data -> (RoomType) data[0], data -> (RoomBase) data[1]));
 
     private static Random rand = new Random();
@@ -100,7 +115,6 @@ public abstract class RoomBase {
     public enum RoomType {
         None,
         Magistrale,
-        Wing02,
         Wing04,
         Wing05,
         Wing06,
@@ -109,6 +123,7 @@ public abstract class RoomBase {
         Wing09,
         Wing10,
         Wing11,
+        Wing12,
         Wing13,
         Library,
         Cafe,
@@ -122,9 +137,16 @@ public abstract class RoomBase {
         CarPark,
     }
 
-    public static List<RoomType> LunchOptions = Arrays.asList(RoomType.Cafe, RoomType.Lunch, RoomType.VendingMachine);
+    // people can also go outside to get lunch
+    public static List<RoomType> LunchOptions = Arrays.asList(RoomType.Cafe, RoomType.Lunch, RoomType.VendingMachine, RoomType.Outside);
+
     public static List<RoomType> LectureRooms = Arrays.asList(RoomType.LectureHall01, RoomType.LectureHall02, RoomType.LectureHall03);
-    public static List<RoomType> GatheringRooms = Arrays.asList(RoomType.Magistrale);
+
+    // people can also gather outside or in the library, but magistrale is three times as likely
+    public static List<RoomType> GatheringRooms = Arrays.asList(RoomType.Magistrale, RoomType.Magistrale, RoomType.Magistrale, RoomType.Outside, RoomType.Library);
+
+    public static List<RoomType> Wings = Arrays.asList(RoomType.Wing04, RoomType.Wing05, RoomType.Wing06, RoomType.Wing07, RoomType.Wing08, RoomType.Wing09, RoomType.Wing10, RoomType.Wing11, RoomType.Wing12, RoomType.Wing13);
+
     public static List<RoomType> EntranceAndExitOptions = Arrays.asList(RoomType.Subway, RoomType.CarPark);
 
     public static String getRoomCategory(RoomType roomType){
@@ -135,7 +157,6 @@ public abstract class RoomBase {
         return null;
     }
 
-
     public static RoomType GetRandomLunchOption() {
         return LunchOptions.get(rand.nextInt(LunchOptions.size()));
     }
@@ -145,7 +166,11 @@ public abstract class RoomBase {
     }
 
     public static RoomType GetRandomGatheringRoom() {
-        return RoomType.Magistrale;
+        return GatheringRooms.get(rand.nextInt(GatheringRooms.size()));
+    }
+
+    public static RoomType GetRandomWing() {
+        return Wings.get(rand.nextInt(Wings.size()));
     }
 
     public static RoomType GetRandomEntranceAndExitOption() {
