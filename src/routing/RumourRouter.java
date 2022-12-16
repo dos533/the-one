@@ -21,7 +21,10 @@ import java.util.Random;
  */
 public class RumourRouter extends ActiveRouter {
 
+	/** Static variables */
 	private static final HashMap<String, Double> sendProb;
+	private static final boolean verbose = false;
+
 	static {
 		sendProb = new HashMap<>();
 		sendProb.put("LunchOptions", .9);
@@ -81,7 +84,6 @@ public class RumourRouter extends ActiveRouter {
 
 	/**
 	 * How to handle incoming messages after it has been received
-	 *
 	 * This method should be called (on the receiving host) after a message
 	 * was successfully transferred. The transferred message is put to the
 	 * message buffer unless this host is the final recipient of the message.
@@ -92,7 +94,6 @@ public class RumourRouter extends ActiveRouter {
 	@Override
 	public Message messageTransferred(String id, DTNHost from) {
 		Message incoming = removeFromIncomingBuffer(id, from);
-		boolean isFinalRecipient;
 		boolean isFirstDelivery; // is this first delivered instance of the msg
 
 
@@ -115,9 +116,7 @@ public class RumourRouter extends ActiveRouter {
 		Message aMessage = (outgoing==null)?(incoming):(outgoing);
 		// If the application re-targets the message (changes 'to')
 		// then the message is not considered as 'delivered' to this host.
-//		isFinalRecipient = aMessage.getTo() == this.host;  // NO : This will never happen
 //		isFirstDelivery = isFinalRecipient && !isDeliveredMessage(aMessage); // NO : This will never happen
-		isFinalRecipient = false;
 		isFirstDelivery = false;
 
 		if (outgoing!=null) {
@@ -141,53 +140,6 @@ public class RumourRouter extends ActiveRouter {
 	}
 
 	/**
-	 * Handle incoming messages when it's being received (accept or no)??
-	 *
-	 * Checks if router "wants" to start receiving message (i.e. router
-	 * isn't transferring, doesn't have the message and has room for it).
-	 * @param m The message to check
-	 * @return A return code similar to
-	 * {@link MessageRouter#receiveMessage(Message, DTNHost)}, i.e.
-	 * {@link MessageRouter#RCV_OK} if receiving seems to be OK,
-	 * TRY_LATER_BUSY if router is transferring, DENIED_OLD if the router
-	 * is already carrying the message or it has been delivered to
-	 * this router (as final recipient), or DENIED_NO_SPACE if the message
-	 * does not fit into buffer
-	 */
-	@Override
-	protected int checkReceiving(Message m, DTNHost from) {
-		if (isTransferring()) {
-			return TRY_LATER_BUSY; // only one connection at a time
-		}
-
-		if ( hasMessage(m.getId()) || isDeliveredMessage(m) || super.isBlacklistedMessage(m.getId())) {
-			return DENIED_OLD; // already seen this message -> reject it
-		}
-
-		if (m.getTtl() <= 0 && m.getTo() != getHost()) {
-			/* TTL has expired and this host is not the final recipient */
-			return DENIED_TTL;
-		}
-
-		if (!this.hasEnergy()) {
-			return MessageRouter.DENIED_LOW_RESOURCES;
-		}
-
-//		TODO : Check policy
-//		if (!policy.acceptReceiving(from, getHost(), m)) {
-//			return MessageRouter.DENIED_POLICY;
-//		}
-
-		/* remove oldest messages but not the ones being sent */
-		if (!makeRoomForMessage(m.getSize())) {
-			return DENIED_NO_SPACE; // couldn't fit into buffer -> reject
-		}
-
-		return RCV_OK;
-	}
-
-
-	/**
 	 * @return the probability of sending the message based on schedule
 	 */
 	public double getSendProbability(){
@@ -197,7 +149,8 @@ public class RumourRouter extends ActiveRouter {
 			RoomBase.RoomType roomCategory = ((RoomBasedMovement) movement).getRoomType();
 			String cat = RoomBase.getRoomCategory(roomCategory);
 			chatProb = sendProb.get(cat);
-//			System.out.println("Chat prob: " + chatProb);
+
+			if (verbose) System.out.println("Chat prob: " + chatProb);
 //		}else{
 //			chatProb = 1;
 //		}

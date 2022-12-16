@@ -56,7 +56,9 @@ public class RumourApplication extends Application {
 	// Static vars
 	private static int nextId = 0;
 	private static final HashMap<String, HashMap<String, Double>> trustMap;
-	private static ArrayList<RoomBase.RoomType> blockedRooms;
+	private static final ArrayList<RoomBase.RoomType> blockedRooms;
+	private static boolean verbose = true;
+
 
 
 	// Private vars
@@ -267,7 +269,8 @@ public class RumourApplication extends Application {
 
 		if (type.equalsIgnoreCase("rumour") && inLoc){
 			super.sendEventToListeners("receivedRumour", msg, host);
-			System.out.println("Message received : " + msg.getId() + "->" + host.getAddress() + ":" + getLocation(host));
+
+			if (verbose) System.out.println("Message received : " + msg.getId() + "->" + host.getAddress() + ":" + getLocation(host));
 
 			addReceivedMessage(msg, host);
 
@@ -329,7 +332,8 @@ public class RumourApplication extends Application {
 			// Rumour created only in the first few tics
 //			String msgId = SimClock.getIntTime() + "-" + host.getAddress();
 			if (rumourId<0) rumourId = host.getAddress();
-			System.out.println("Message created : " + rumourId);
+
+			if (verbose) System.out.println("Message created : " + rumourId);
 
 			String msgId = Integer.toString(rumourId);
 
