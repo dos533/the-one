@@ -5,7 +5,7 @@
 ## Scenario settings
 Scenario.name = FMI
 # 43k ~= 12h
-Scenario.endTime = 43000
+Scenario.endTime = 43200
 Scenario.updateInterval = 1
 Scenario.simulateConnections = true
 ## Movement model settings
