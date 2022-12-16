@@ -27,7 +27,8 @@ public class RumourRouter extends ActiveRouter {
 		sendProb.put("LunchOptions", .9);
 		sendProb.put("LectureRooms", .3);
 		sendProb.put("GatheringRooms", .95);
-		sendProb.put("EntranceAndExitOptions", .95);
+		sendProb.put("Wings", .9);
+		sendProb.put("EntranceAndExitOptions", 0.0);
 	}
 
 	private Random rng;
@@ -196,7 +197,7 @@ public class RumourRouter extends ActiveRouter {
 			RoomBase.RoomType roomCategory = ((RoomBasedMovement) movement).getRoomType();
 			String cat = RoomBase.getRoomCategory(roomCategory);
 			chatProb = sendProb.get(cat);
-			System.out.println("Chat prob: " + chatProb);
+//			System.out.println("Chat prob: " + chatProb);
 //		}else{
 //			chatProb = 1;
 //		}

@@ -33,8 +33,10 @@ rumourApp.sourceRange = 20,30
 rumourApp.destinationRange = 0,0
 rumourApp.msgSize = 5
 rumourApp.passive = false
+# Modelling contact time to tell rumour
 rumourApp.receiveThreshold = 10
 rumourApp.sendThreshold = 0.9
+# rumour.real = 0.5  # Realistic nature of rumour
 
 # Groups
 Scenario.nrofHostGroups = 7
