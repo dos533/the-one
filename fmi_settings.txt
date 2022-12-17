@@ -65,16 +65,16 @@ Group2.groupID = professor
 Group2.nrofHosts = 1
 
 Group3.groupID = student
-Group3.nrofHosts = 10
+Group3.nrofHosts = 1
 
 Group4.groupID = cleaner
 Group4.nrofHosts = 10
 
 Group5.groupID = barista
-Group5.nrofHosts = 10
+Group5.nrofHosts = 1
 
 Group6.groupID = visitor
-Group6.nrofHosts = 10
+Group6.nrofHosts = 1
 
 ## Message creation parameters
 # How many event generators
