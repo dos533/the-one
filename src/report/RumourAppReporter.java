@@ -13,6 +13,8 @@ import core.Message;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Reporter for the <code>PingApplication</code>. Counts the number of pings
@@ -29,16 +31,24 @@ public class RumourAppReporter extends Report implements ApplicationListener {
 
 	private final HashMap<String, HashMap<String, Message>> receivedNoDuplicate;
 
+	private final HashMap<String, Set<DTNHost>> receivedHost;
+
+	private final HashMap<String, Set<DTNHost>> infected;
+
 	public RumourAppReporter(){
 		super();
-		rumours = new ArrayList<Message>();
+		rumours = new ArrayList<>();
 		received = new HashMap<>();
 		receivedNoDuplicate = new HashMap<>();
+		receivedHost = new HashMap<>();
+		infected = new HashMap<>();
 	}
 
-	public void addRemoveDuplicate(Message msg){
+	public void addReceivedRemoveDuplicate(Message msg){
 		String msgId = msg.toString();
 		String hops = msg.hopsToString(msg.getHopCount());
+
+		if (!receivedNoDuplicate.containsKey(msgId)) receivedNoDuplicate.put(msgId, new HashMap<>());
 		receivedNoDuplicate.get(msgId).put(hops, msg);
 
 		if (msg.getHopCount() > 1){
@@ -46,6 +56,25 @@ public class RumourAppReporter extends Report implements ApplicationListener {
 			receivedNoDuplicate.get(msgId).remove(hopsLast);
 		}
 
+	}
+
+	public void addReceived(Message msg){
+		String msgId = msg.toString();
+		if (!received.containsKey(msgId)) received.put(msgId, new ArrayList<>());
+
+		received.get(msgId).add(msg);
+	}
+
+	public void countReceived(Message msg, DTNHost host){
+		String msgId = msg.toString();
+		if (!receivedHost.containsKey(msgId)) receivedHost.put(msgId, new HashSet<>());
+		receivedHost.get(msgId).add(host);
+	}
+
+	public void countInfected(Message msg, DTNHost host){
+		String msgId = msg.toString();
+		if (!infected.containsKey(msgId)) infected.put(msgId, new HashSet<>());
+		infected.get(msgId).add(host);
 	}
 
 	public void gotEvent(String event, Object params, Application app,
@@ -59,15 +88,16 @@ public class RumourAppReporter extends Report implements ApplicationListener {
 		}
 
 		if (event.equalsIgnoreCase("receivedRumour")) {
-			Message msg = (Message) params;
-			String msgId = msg.toString();
-			if (!received.containsKey(msgId)) received.put(msgId, new ArrayList<>());
-			if (!receivedNoDuplicate.containsKey(msgId)) receivedNoDuplicate.put(msgId, new HashMap<>());
-
 			// Add message to received messages
-			received.get(msgId).add(msg);
+			addReceived((Message) params);
+			// Count hosts who received message
+			countReceived((Message) params, host);
 			// Add message and remove duplicates
-			addRemoveDuplicate(msg);
+			addReceivedRemoveDuplicate((Message) params);
+		}
+
+		if (event.equalsIgnoreCase("sendRumour")) {
+			countInfected((Message) params, host);
 		}
 
 	}
@@ -77,45 +107,29 @@ public class RumourAppReporter extends Report implements ApplicationListener {
 	public void done() {
 		write("Rumour : " + getScenarioName() +
 				"\nsim_time: " + format(getSimTime()));
-//		double pingProb = 0; // ping probability
-//		double pongProb = 0; // pong probability
-//		double successProb = 0;	// success probability
-//
-//		if (this.pingsSent > 0) {
-//			pingProb = (1.0 * this.pingsReceived) / this.pingsSent;
-//		}
-//		if (this.pongsSent > 0) {
-//			pongProb = (1.0 * this.pongsReceived) / this.pongsSent;
-//		}
-//		if (this.pingsSent > 0) {
-//			successProb = (1.0 * this.pongsReceived) / this.pingsSent;
-//		}
-//
-//		String statsText = "pings sent: " + this.pingsSent +
-//			"\npings received: " + this.pingsReceived +
-//			"\npongs sent: " + this.pongsSent +
-//			"\npongs received: " + this.pongsReceived +
-//			"\nping delivery prob: " + format(pingProb) +
-//			"\npong delivery prob: " + format(pongProb) +
-//			"\nping/pong success prob: " + format(successProb)
-//			;
 
 		HashMap<String, ArrayList<Integer>> hopCount = new HashMap<>();
 		String txt;
 
-		txt = "Rumours created: " + this.rumours.size();
+		txt = "RumoursCreated: " + this.rumours.size();
 		write(txt);
 
-		txt = rumours.toString();
+		txt = "RumourList: " + rumours.toString();
 		write(txt);
 
-		for (String msgId : received.keySet()) {
-			hopCount.put(msgId, new ArrayList<>());
-			for (Message m: received.get(msgId)){
-				hopCount.get(msgId).add(m.getHopCount());
-			}
-		}
-		txt = hopCount.toString();
+//		for (String msgId : received.keySet()) {
+//			hopCount.put(msgId, new ArrayList<>());
+//			for (Message m: received.get(msgId)){
+//				hopCount.get(msgId).add(m.getHopCount());
+//			}
+//		}
+//		txt = hopCount.toString();
+//		write(txt);
+
+		txt = "Received: " + receivedHost.toString();
+		write(txt);
+
+		txt = "Infected: " + infected.toString();
 		write(txt);
 
 		for (String msgId : received.keySet()) {
@@ -125,7 +139,7 @@ public class RumourAppReporter extends Report implements ApplicationListener {
 				hopCount.get(msgId).add(receivedNoDuplicate.get(msgId).get(hops).getHopCount());
 			}
 		}
-		txt = hopCount.toString();
+		txt = "HopCount: " + hopCount.toString();
 		write(txt);
 
 		super.done();

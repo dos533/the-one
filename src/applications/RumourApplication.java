@@ -6,8 +6,12 @@
 package applications;
 
 import core.*;
+import movement.MovementModel;
+import movement.RoomBasedMovement;
+import movement.room.RoomBase;
 import report.RumourAppReporter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -51,6 +55,10 @@ public class RumourApplication extends Application {
 
 	// Static vars
 	private static int nextId = 0;
+	private static final HashMap<String, HashMap<String, Double>> trustMap;
+	private static final ArrayList<RoomBase.RoomType> blockedRooms;
+	private static boolean verbose = true;
+
 
 
 	// Private vars
@@ -73,7 +81,6 @@ public class RumourApplication extends Application {
 
 	private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> msgReceived;
 
-	private static final HashMap<String, HashMap<String, Double>> trustMap;
 	static {
 		trustMap = new HashMap<>();
 		trustMap.put("professor", new HashMap<>());
@@ -111,6 +118,10 @@ public class RumourApplication extends Application {
 		trustMap.get("visitor").put("cleaner", 0.8);
 		trustMap.get("visitor").put("barista", 0.6);
 		trustMap.get("visitor").put("visitor", 0.7);
+
+		blockedRooms = new ArrayList<>();
+		blockedRooms.add(RoomBase.RoomType.Subway);
+		blockedRooms.add(RoomBase.RoomType.CarPark);
 
 	}
 
@@ -212,13 +223,32 @@ public class RumourApplication extends Application {
 
 		if (!msgReceived.containsKey(msgID)) msgReceived.put(msgID, new HashMap<>());
 		if (!msgReceived.get(msgID).containsKey(from.groupId)) msgReceived.get(msgID).put(from.groupId, new HashMap<>());
-		if (msgReceived.get(msgID).get(from.groupId).containsKey(from.getAddress())) {
-			val = msgReceived.get(msgID).get(from.groupId).get(from.getAddress()) + 1;
-		}else{
-			val = 1;
-		}
-		msgReceived.get(msgID).get(from.groupId).put(from.getAddress(), val);
+
+		val = msgReceived.get(msgID).get(from.groupId).getOrDefault(from.getAddress(), 0);
+//		if (msgReceived.get(msgID).get(from.groupId).containsKey(from.getAddress())) {
+//			val = msgReceived.get(msgID).get(from.groupId).get(from.getAddress()) + 1;
+//		}else{
+//			val = 1;
+//		}
+		msgReceived.get(msgID).get(from.groupId).put(from.getAddress(), val+1);
 	}
+
+	private boolean getInLocation(DTNHost host){
+		MovementModel movement = host.getMovement();
+		RoomBase.RoomType roomCategory = ((RoomBasedMovement) movement).getRoomType();
+
+		boolean blocked = blockedRooms.contains(roomCategory);
+
+		return !blocked;
+	}
+
+	private String getLocation(DTNHost host){
+		MovementModel movement = host.getMovement();
+		RoomBase.RoomType roomCategory = ((RoomBasedMovement) movement).getRoomType();
+
+		return roomCategory.name();
+	}
+
 
 	/**
 	 * Handles an incoming message.
@@ -232,29 +262,35 @@ public class RumourApplication extends Application {
 		String type = (String)msg.getProperty("type");
 		if (type==null) return msg;
 
+		// Host is inside or outside
+		boolean inLoc = getInLocation(host);
 
-		if (type.equalsIgnoreCase("rumour")){
+		if (host.getAddress() == 30) System.out.println("Host : " + host.getAddress() + ":" + getLocation(host));
+
+		if (type.equalsIgnoreCase("rumour") && inLoc){
 			super.sendEventToListeners("receivedRumour", msg, host);
+
+			if (verbose) System.out.println("Message received : " + msg.getId() + "->" + host.getAddress() + ":" + getLocation(host));
 
 			addReceivedMessage(msg, host);
 
 			double real = (double) msg.getProperty("real");	// Realistic or not (given as percentage)
 			double infectProb = getConfidence(msg, host, real);	// Confidence of the message received by the sender
 
-			if (host.getAddress()==124){
-				System.out.print(host.getAddress());
-				System.out.println(host.getMessageCollection());
-				System.out.println(this.msgReceived.toString());
-				System.out.println(msg.getId() + " " + infectProb);
-			}
+//			if (host.getAddress()==124){
+//				System.out.print(host.getAddress());
+//				System.out.println(host.getMessageCollection());
+//				System.out.println(this.msgReceived.toString());
+//				System.out.println(msg.getId() + " " + infectProb);
+//			}
 
 			if (infectProb >= senThreshold){
+				super.sendEventToListeners("sendRumour", msg, host);
 				return msg;
 			}
 			else{
 				return null;
 			}
-
 		}
 
 		return msg;
@@ -286,13 +322,18 @@ public class RumourApplication extends Application {
 	public void update(DTNHost host) {
 		if (this.passive) return;
 		double curTime = SimClock.getTime();
+
+		// Host in source range
 		boolean hostInRange = host.getAddress() <= srcMax && host.getAddress() >= srcMin;
+		// Host is inside or outside
+		boolean inLoc = getInLocation(host);
 
 		if (curTime - this.lastRumourCreated >= this.interval && curTime < 100 && hostInRange){
 			// Rumour created only in the first few tics
 //			String msgId = SimClock.getIntTime() + "-" + host.getAddress();
 			if (rumourId<0) rumourId = host.getAddress();
-			System.out.println(rumourId);
+
+			if (verbose) System.out.println("Message created : " + rumourId);
 
 			String msgId = Integer.toString(rumourId);
 

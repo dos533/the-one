@@ -164,6 +164,7 @@ public abstract class RoomBase {
 
     public static String getRoomCategory(RoomType roomType){
         if (LunchOptions.contains(roomType)) return "LunchOptions";
+        if (Wings.contains(roomType)) return "Wings";
         if (LectureRooms.contains(roomType)) return "LectureRooms";
         if (GatheringRooms.contains(roomType)) return "GatheringRooms";
         if (EntranceAndExitOptions.contains(roomType)) return "EntranceAndExitOptions";
