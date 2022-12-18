@@ -112,7 +112,7 @@ Optimization.randomizeUpdateOrder = true
 
 # Mapfile as overlay
 MapBasedMovement.nrofMapFiles = 1
-MapBasedMovement.mapFile1 = data/testTwo.wkt
+MapBasedMovement.mapFile1 = data/fmi_simplified.wkt
 
 Schedule.RNG_SEED = 1
 
