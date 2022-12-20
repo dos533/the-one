@@ -68,12 +68,13 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
             this._isEnabled = false;
         }
 
+        if(_currentRoom != _nextRoom)
+            _currentRoom = _nextRoom;
+
         //dont move if we are waiting in the current room
         if(_nextMoveTime > currentTime) {
             return null;
         }
-
-        _currentRoom = _nextRoom;
 
         RoomBase nextRoom = _schedule.getNextRoom(currentTime);
 
