@@ -97,7 +97,7 @@ public class RumourRouter extends ActiveRouter {
 		double chatProb = getSendProbability();
 		// Host is inside or outside
 		boolean inLoc = getInLocation(this.getHost());
-		System.out.println(inLoc +"_" + this.getHost().getAddress() + " : " + getLocation(this.getHost()));
+//		System.out.println(inLoc +"_" + this.getHost().getAddress() + " : " + getLocation(this.getHost()));
 
 		if (rng.nextDouble() <= chatProb && inLoc) {
 			// Try first the messages that can be delivered to final recipient
@@ -139,7 +139,7 @@ public class RumourRouter extends ActiveRouter {
 		// Pass the message to the application (if any) and get outgoing message
 		Message outgoing = incoming;
 
-		System.out.println(inLoc +"_" + this.getHost().getAddress() + " : " + getLocation(this.getHost()));
+//		System.out.println(inLoc +"_" + this.getHost().getAddress() + " : " + getLocation(this.getHost()));
 
 		// Only pass the message if host is in location
 		if (inLoc){
