@@ -31,7 +31,8 @@ public abstract class RoomBase {
             {RoomType.Wing11, new Wing11()},
             {RoomType.Wing12, new Wing12()},
             {RoomType.Wing13, new Wing13()},
-            {RoomType.CarPark, new CarPark()}
+            {RoomType.CarPark, new CarPark()},
+            {RoomType.Library, new Library()}
     }).collect(Collectors.toMap(data -> (RoomType) data[0], data -> (RoomBase) data[1]));
 
     private static Random rand = new Random();

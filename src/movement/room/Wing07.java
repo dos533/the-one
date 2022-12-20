@@ -9,7 +9,7 @@ import java.util.List;
 public class Wing07 extends RoomBase{
     public Wing07() {
         super(RoomType.Wing07, new Timeframe(30, 300), false);
-        roomDoors.put(RoomType.Magistrale, new Coord(390, 150));
+        roomDoors.put(RoomType.Magistrale, new Coord(355, 150));
     }
 
     @Override
