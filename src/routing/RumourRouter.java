@@ -9,11 +9,12 @@ import movement.MovementModel;
 import movement.RoomBasedMovement;
 import movement.room.RoomBase;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
 /**
- * Rumuor message router
+ * Rumour message router
  * TODO : Model buffer
  * TODO : Model multiple transfers simultaneously (group behavior)
  * with drop-oldest buffer and only single transferring
@@ -23,6 +24,7 @@ public class RumourRouter extends ActiveRouter {
 
 	/** Static variables */
 	private static final HashMap<String, Double> sendProb;
+	private static final ArrayList<RoomBase.RoomType> blockedRooms;
 	private static final boolean verbose = false;
 
 	static {
@@ -32,6 +34,11 @@ public class RumourRouter extends ActiveRouter {
 		sendProb.put("GatheringRooms", .95);
 		sendProb.put("Wings", .9);
 		sendProb.put("EntranceAndExitOptions", 0.0);
+
+		blockedRooms = new ArrayList<>();
+		blockedRooms.add(RoomBase.RoomType.Subway);
+		blockedRooms.add(RoomBase.RoomType.CarPark);
+
 	}
 
 	private Random rng;
@@ -62,6 +69,23 @@ public class RumourRouter extends ActiveRouter {
 		return new RumourRouter(this);
 	}
 
+	private boolean getInLocation(DTNHost host){
+		MovementModel movement = host.getMovement();
+		RoomBase.RoomType roomCategory = ((RoomBasedMovement) movement).getRoomType();
+
+		boolean blocked = blockedRooms.contains(roomCategory);
+
+		return !blocked;
+	}
+
+	private String getLocation(DTNHost host){
+		MovementModel movement = host.getMovement();
+		RoomBase.RoomType roomCategory = ((RoomBasedMovement) movement).getRoomType();
+
+		return roomCategory.name();
+	}
+
+
 	@Override
 	public void update() {
 		super.update();
@@ -69,8 +93,13 @@ public class RumourRouter extends ActiveRouter {
 			return; // transferring, don't try other connections yet
 		}
 
+		// Probability of talking about rumour based on location
 		double chatProb = getSendProbability();
-		if (rng.nextDouble() <= chatProb) {
+		// Host is inside or outside
+		boolean inLoc = getInLocation(this.getHost());
+		System.out.println(inLoc +"_" + this.getHost().getAddress() + " : " + getLocation(this.getHost()));
+
+		if (rng.nextDouble() <= chatProb && inLoc) {
 			// Try first the messages that can be delivered to final recipient
 			if (exchangeDeliverableMessages() != null) {
 				return; // started a transfer, don't try others (yet)
@@ -87,7 +116,7 @@ public class RumourRouter extends ActiveRouter {
 	 * This method should be called (on the receiving host) after a message
 	 * was successfully transferred. The transferred message is put to the
 	 * message buffer unless this host is the final recipient of the message.
-	 * @param id Id of the transferred message
+	 * @param id ID of the transferred message
 	 * @param from Host the message was from (previous hop)
 	 * @return The message that this host received
 	 */
@@ -104,14 +133,26 @@ public class RumourRouter extends ActiveRouter {
 
 		incoming.setReceiveTime(SimClock.getTime());
 
+		// Host is inside or outside
+		boolean inLoc = getInLocation(this.getHost());
+
 		// Pass the message to the application (if any) and get outgoing message
 		Message outgoing = incoming;
-		for (Application app : getApplications(incoming.getAppID())) {
-			// Note that the order of applications is significant
-			// since the next one gets the output of the previous.
-			outgoing = app.handle(outgoing, this.getHost());
-			if (outgoing == null) break; // Some app wanted to drop the message
+
+		System.out.println(inLoc +"_" + this.getHost().getAddress() + " : " + getLocation(this.getHost()));
+
+		// Only pass the message if host is in location
+		if (inLoc){
+			for (Application app : getApplications(incoming.getAppID())) {
+				// Note that the order of applications is significant
+				// since the next one gets the output of the previous.
+				outgoing = app.handle(outgoing, this.getHost());
+				if (outgoing == null) break; // Some app wanted to drop the message
+			}
+		}else {
+			outgoing = null;
 		}
+
 
 		Message aMessage = (outgoing==null)?(incoming):(outgoing);
 		// If the application re-targets the message (changes 'to')
@@ -128,7 +169,7 @@ public class RumourRouter extends ActiveRouter {
 //			this.deliveredMessages.put(id, aMessage);
 //		} else if (outgoing == null) {
 //			// Blacklist messages that an app wants to drop.
-//			// Otherwise the peer will just try to send it back again.
+//			// Otherwise, the peer will just try to send it back again.
 //			this.blacklistedMessages.put(id, null);
 //		}
 

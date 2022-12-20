@@ -49,15 +49,12 @@ H is the hatch used for identification of the different dataframe"""
 
 if __name__ == "__main__":
 
-    Groups = ['student', 'professor', 'barista']
+    Groups = ['student', 'professor', 'barista', 'visitor', 'cleaner']
 
-    rumours, received, infected, hop_count = parseReport()
+    rumours, received, infected, hop_count = parseReport("../reports/FMI-R0.5_RumourAppReporter.txt")
 
     hist_received = makeHist(received)
     hist_infected = makeHist(infected)
-
-
-
 
     df = []
 

@@ -62,7 +62,7 @@ public class RumourInterface extends SimpleBroadcastInterface {
 	 * @return a string representation of the object.
 	 */
 	public String toString() {
-		return "SimpleBroadcastInterface " + super.toString();
+		return "RumourInterface " + super.toString();
 	}
 
 }

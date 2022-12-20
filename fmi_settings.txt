@@ -3,7 +3,8 @@
 #
 
 ## Scenario settings
-Scenario.name = FMI
+Scenario.name = FMI-R%%rumourApp.real%%
+
 # 43k ~= 12h
 Scenario.endTime = 43200
 Scenario.updateInterval = 1
@@ -26,20 +27,23 @@ firstinterface.transmitRange = 10
 
 # Define new application
 rumourApp.type = RumourApplication
-# RumourID= if val > 0: uniqueID, elif val==0: groupID, else hostAddress
-rumourApp.id = -1
-rumourApp.interval = 50
-rumourApp.sourceRange = 20,30
 rumourApp.destinationRange = 0,0
 rumourApp.msgSize = 5
 rumourApp.passive = false
-# Modelling contact time to tell rumour
+
+# RumourID= if val > 0: uniqueID, elif val==0: groupID, else hostAddress
+rumourApp.id = 0
+# Who sends the message
+rumourApp.source = 20, 21, 22, 23, 24, 25, 26, 27, 28, 29
+# Modelling contact time to tell rumour (should receive at least n number of messages from the same person)
 rumourApp.receiveThreshold = 10
-rumourApp.sendThreshold = 0.9
-# rumour.real = 0.5  # Realistic nature of rumour
+# Total confidence needed to be infected (Check getConfidence function @ RumourApplication.java)
+rumourApp.sendThreshold = 1.5
+# Realistic nature of rumour
+rumourApp.real = [0.5; 1.0]
 
 # Groups
-Scenario.nrofHostGroups = 7
+Scenario.nrofHostGroups = 6
 
 # common settings for all groups
 Group.router = RumourRouter
@@ -59,32 +63,27 @@ Group.application1 = rumourApp
 
 
 ## legit just have this to render the room....
-Group7.groupID = a
-Group7.nrofInterfaces = 0
-Group7.nrofHosts = 1
-Group7.movementModel =
-Group7.router = PassiveRouter
-
 Group1.groupID = dest
 Group1.nrofHosts = 1
+Group1.nrofInterfaces = 0
 Group1.movementModel = MapBasedMovement
 Group1.nodeLocation = 0,0
 Group1.nrofInterfaces = 0
 
 Group2.groupID = professor
-Group2.nrofHosts = 5
+Group2.nrofHosts = 10
 
 Group3.groupID = student
-Group3.nrofHosts = 100
+Group3.nrofHosts = 400
 
 Group4.groupID = cleaner
-Group4.nrofHosts = 10
+Group4.nrofHosts = 5
 
 Group5.groupID = barista
 Group5.nrofHosts = 3
 
 Group6.groupID = visitor
-Group6.nrofHosts = 1
+Group6.nrofHosts = 5
 
 ## Message creation parameters
 # How many event generators
