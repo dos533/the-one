@@ -5,7 +5,7 @@
 ## Scenario settings
 Scenario.name = FMI
 # 43k ~= 12h
-Scenario.endTime = 43000
+Scenario.endTime = 43200
 Scenario.updateInterval = 1
 Scenario.simulateConnections = true
 ## Movement model settings
@@ -57,26 +57,34 @@ Group.speed = 0.5, 1.5
 Group.nrofApplications = 1
 Group.application1 = rumourApp
 
+
+## legit just have this to render the room....
+Group7.groupID = a
+Group7.nrofInterfaces = 0
+Group7.nrofHosts = 1
+Group7.movementModel =
+Group7.router = PassiveRouter
+
 Group1.groupID = dest
 Group1.nrofHosts = 1
-Group1.movementModel = StationaryMovement
+Group1.movementModel = MapBasedMovement
 Group1.nodeLocation = 0,0
 Group1.nrofInterfaces = 0
 
 Group2.groupID = professor
-Group2.nrofHosts = 1
+Group2.nrofHosts = 5
 
 Group3.groupID = student
-Group3.nrofHosts = 10
+Group3.nrofHosts = 100
 
 Group4.groupID = cleaner
 Group4.nrofHosts = 10
 
 Group5.groupID = barista
-Group5.nrofHosts = 10
+Group5.nrofHosts = 3
 
 Group6.groupID = visitor
-Group6.nrofHosts = 10
+Group6.nrofHosts = 1
 
 ## Message creation parameters
 # How many event generators
@@ -84,7 +92,7 @@ Events.nrof = 0
 
 
 # how many reports to load
-Report.nrofReports = 2
+Report.nrofReports = 3
 # length of the warm up period (simulated seconds)
 Report.warmup = 0
 # default directory of reports (can be overridden per Report with output setting)
@@ -92,6 +100,7 @@ Report.reportDir = reports/
 # Report classes to load
 Report.report1 = MessageStatsReport
 Report.report2 = RumourAppReporter
+Report.report3 = ScheduleReporter
 
 ## Optimization settings -- these affect the speed of the simulation
 ## see World class for details.
@@ -99,17 +108,21 @@ Optimization.connectionAlg = 2
 Optimization.cellSizeMult = 5
 Optimization.randomizeUpdateOrder = true
 
-## legit just have this to render the room....
-Group7.groupID = a
-Group7.nrofInterfaces = 0
-Group7.nrofHosts = 1
-Group7.movementModel = MapBasedMovement
-Group7.router = PassiveRouter
+
 
 
 # Mapfile as overlay
 MapBasedMovement.nrofMapFiles = 1
-MapBasedMovement.mapFile1 = data/testTwo.wkt
+MapBasedMovement.mapFile1 = data/fmi_simplified.wkt
 
 Schedule.RNG_SEED = 1
 
+Schedule.STUDENT_PROB_EAT = 0.2
+Schedule.STUDENT_PROB_HANGOUT = 0.5
+Schedule.STUDENT_PROB_CHAIR = 0.3
+Schedule.PROF_PROB_EAT = 0.05
+Schedule.PROF_PROB_HANGOUT = 0.05
+Schedule.PROF_PROB_CHAIR = 0.9
+Schedule.VISITOR_PROB_EAT = 0.1
+Schedule.VISITOR_PROB_HANGOUT = 0.7
+Schedule.VISITOR_PROB_CHAIR = 0.2

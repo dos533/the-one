@@ -26,8 +26,6 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
 
     private Schedule _schedule;
 
-    private boolean _scheduleFinished = false;
-
     public RoomBasedMovement(Settings settings) {
         super(settings);
         this._currentRoom = RoomBase.AllRooms.get(RoomBase.RoomType.Subway);
@@ -62,11 +60,13 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
 
     @Override
     public Path getPath() {
-        if(_currentRoom.GetRoomType() == RoomBase.RoomType.Subway && _scheduleFinished) {
+        final double currentTime = SimClock.getTime();
+
+        if(_schedule.isFinishedAtTime(currentTime) && RoomBase.EntranceAndExitOptions.contains( _nextRoom.GetRoomType())) {
+            System.out.println("is called");
+            _currentRoom = _nextRoom;
             this._isEnabled = false;
         }
-
-        final double currentTime = SimClock.getTime();
 
         //dont move if we are waiting in the current room
         if(_nextMoveTime > currentTime) {
@@ -225,5 +225,9 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
     @Override
     public boolean isReady() {
         return false;
+    }
+
+    public Schedule getSchedule() {
+        return _schedule;
     }
 }
