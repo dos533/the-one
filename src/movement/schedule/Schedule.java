@@ -325,7 +325,7 @@ public class Schedule {
         double shiftStart = START_OF_DAY + rng.nextDouble()*4;
 
         // Somewhere between 4 and 8 hours
-        double shiftDuration = Math.min(4 + rng.nextDouble()*4, END_OF_DAY - shiftStart - 1);
+        double shiftDuration = Math.min(4 + rng.nextDouble()*4, END_OF_DAY - shiftStart - QUARTER_HOUR);
 
         // Somewhere in the middle of the shift
         double breakStart = shiftStart + shiftDuration/2 + (rng.nextDouble()-0.5);
@@ -356,7 +356,7 @@ public class Schedule {
         double visitStart = START_OF_DAY + rng.nextDouble()*10;
 
         // Somewhere between 2 and 6 hours
-        double visitDuration = Math.min(2 + rng.nextDouble()*4, END_OF_DAY - visitStart - 1);
+        double visitDuration = Math.min(2 + rng.nextDouble()*4, END_OF_DAY - visitStart - QUARTER_HOUR);
 
         double visitEnd = visitStart + visitDuration;
 
