@@ -507,6 +507,14 @@ public class Schedule {
 
         return (END_OF_DAY - START_OF_DAY) * 3600;
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "slots=" + slots +
+                ", exitRoom=" + exitRoom +
+                '}';
+    }
 }
 
 class Lecture {

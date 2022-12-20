@@ -226,4 +226,8 @@ public class RoomBasedMovement extends MovementModel implements SwitchableMoveme
     public boolean isReady() {
         return false;
     }
+
+    public Schedule getSchedule() {
+        return _schedule;
+    }
 }

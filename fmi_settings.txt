@@ -92,7 +92,7 @@ Events.nrof = 0
 
 
 # how many reports to load
-Report.nrofReports = 2
+Report.nrofReports = 3
 # length of the warm up period (simulated seconds)
 Report.warmup = 0
 # default directory of reports (can be overridden per Report with output setting)
@@ -100,6 +100,7 @@ Report.reportDir = reports/
 # Report classes to load
 Report.report1 = MessageStatsReport
 Report.report2 = RumourAppReporter
+Report.report3 = ScheduleReporter
 
 ## Optimization settings -- these affect the speed of the simulation
 ## see World class for details.
