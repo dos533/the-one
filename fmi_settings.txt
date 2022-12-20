@@ -116,3 +116,12 @@ MapBasedMovement.mapFile1 = data/fmi_simplified.wkt
 
 Schedule.RNG_SEED = 1
 
+Schedule.STUDENT_PROB_EAT = 0.2
+Schedule.STUDENT_PROB_HANGOUT = 0.5
+Schedule.STUDENT_PROB_CHAIR = 0.3
+Schedule.PROF_PROB_EAT = 0.05
+Schedule.PROF_PROB_HANGOUT = 0.05
+Schedule.PROF_PROB_CHAIR = 0.9
+Schedule.VISITOR_PROB_EAT = 0.1
+Schedule.VISITOR_PROB_HANGOUT = 0.7
+Schedule.VISITOR_PROB_CHAIR = 0.2
