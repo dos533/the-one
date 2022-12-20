@@ -57,7 +57,7 @@ public class RumourApplication extends Application {
 	private static int nextId = 0;
 	private static final HashMap<String, HashMap<String, Double>> trustMap;
 	private static final ArrayList<RoomBase.RoomType> blockedRooms;
-	private static boolean verbose = true;
+	private static boolean verbose = false;
 
 
 
@@ -265,7 +265,7 @@ public class RumourApplication extends Application {
 		// Host is inside or outside
 		boolean inLoc = getInLocation(host);
 
-		if (host.getAddress() == 30) System.out.println("Host : " + host.getAddress() + ":" + getLocation(host));
+		if (host.getAddress() == 30) System.out.println("Host : " + host.getAddress() + ":" + SimClock.getTime() + ":" + getLocation(host));
 
 		if (type.equalsIgnoreCase("rumour") && inLoc){
 			super.sendEventToListeners("receivedRumour", msg, host);
@@ -326,7 +326,7 @@ public class RumourApplication extends Application {
 		// Host in source range
 		boolean hostInRange = host.getAddress() <= srcMax && host.getAddress() >= srcMin;
 		// Host is inside or outside
-		boolean inLoc = getInLocation(host);
+//		boolean inLoc = getInLocation(host);
 
 		if (curTime - this.lastRumourCreated >= this.interval && curTime < 100 && hostInRange){
 			// Rumour created only in the first few tics

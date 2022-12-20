@@ -20,3 +20,6 @@ doc/package-list
 out/
 .idea/
 the-one.iml
+*.pyc
+the-one.iml
+the-one.iml
