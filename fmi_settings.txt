@@ -33,8 +33,10 @@ rumourApp.sourceRange = 20,30
 rumourApp.destinationRange = 0,0
 rumourApp.msgSize = 5
 rumourApp.passive = false
+# Modelling contact time to tell rumour
 rumourApp.receiveThreshold = 10
 rumourApp.sendThreshold = 0.9
+# rumour.real = 0.5  # Realistic nature of rumour
 
 # Groups
 Scenario.nrofHostGroups = 7
@@ -55,26 +57,34 @@ Group.speed = 0.5, 1.5
 Group.nrofApplications = 1
 Group.application1 = rumourApp
 
+
+## legit just have this to render the room....
+Group7.groupID = a
+Group7.nrofInterfaces = 0
+Group7.nrofHosts = 1
+Group7.movementModel =
+Group7.router = PassiveRouter
+
 Group1.groupID = dest
 Group1.nrofHosts = 1
-Group1.movementModel = StationaryMovement
+Group1.movementModel = MapBasedMovement
 Group1.nodeLocation = 0,0
 Group1.nrofInterfaces = 0
 
 Group2.groupID = professor
-Group2.nrofHosts = 1
+Group2.nrofHosts = 5
 
 Group3.groupID = student
-Group3.nrofHosts = 10
+Group3.nrofHosts = 100
 
 Group4.groupID = cleaner
 Group4.nrofHosts = 10
 
 Group5.groupID = barista
-Group5.nrofHosts = 10
+Group5.nrofHosts = 3
 
 Group6.groupID = visitor
-Group6.nrofHosts = 10
+Group6.nrofHosts = 1
 
 ## Message creation parameters
 # How many event generators
@@ -97,17 +107,12 @@ Optimization.connectionAlg = 2
 Optimization.cellSizeMult = 5
 Optimization.randomizeUpdateOrder = true
 
-## legit just have this to render the room....
-Group7.groupID = a
-Group7.nrofInterfaces = 0
-Group7.nrofHosts = 1
-Group7.movementModel = MapBasedMovement
-Group7.router = PassiveRouter
+
 
 
 # Mapfile as overlay
 MapBasedMovement.nrofMapFiles = 1
-MapBasedMovement.mapFile1 = data/testTwo.wkt
+MapBasedMovement.mapFile1 = data/fmi_simplified.wkt
 
 Schedule.RNG_SEED = 1
 

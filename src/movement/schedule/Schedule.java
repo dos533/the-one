@@ -455,6 +455,15 @@ public class Schedule {
         return rng;
     }
 
+
+    public boolean isFinishedAtTime(double currentTime) {
+        if(slots.isEmpty()) {
+            return false;
+        }
+        ScheduleSlot s = slots.get(slots.size() - 1);
+        return START_OF_DAY + (currentTime / 60 / 60) > s.time + s.duration;
+    }
+
     public RoomBase getNextRoom(double currentTime) {
 
         if (slots.isEmpty()) {
