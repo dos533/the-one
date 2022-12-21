@@ -27,17 +27,17 @@ public class Schedule {
     private static final double HALF_HOUR = 1.0 / 2.0;
 
 
-    private static double STUDENT_PROB_EAT = 0.2;
-    private static double STUDENT_PROB_HANGOUT = 0.5;
-    private static double STUDENT_PROB_CHAIR = 0.3;
+    private static double STUDENT_PROB_EAT;
+    private static double STUDENT_PROB_HANGOUT;
+    private static double STUDENT_PROB_CHAIR;
 
-    private static double PROF_PROB_EAT = 0.05;
-    private static double PROF_PROB_HANGOUT = 0.05;
-    private static double PROF_PROB_CHAIR = 0.9;
+    private static double PROF_PROB_EAT;
+    private static double PROF_PROB_HANGOUT;
+    private static double PROF_PROB_CHAIR;
 
-    private static double VISITOR_PROB_EAT = 0.1;
-    private static double VISITOR_PROB_HANGOUT = 0.7;
-    private static double VISITOR_PROB_CHAIR = 0.2;
+    private static double VISITOR_PROB_EAT;
+    private static double VISITOR_PROB_HANGOUT;
+    private static double VISITOR_PROB_CHAIR;
 
     ArrayList<ScheduleSlot> slots;
     RoomBase.RoomType exitRoom;
@@ -50,21 +50,26 @@ public class Schedule {
 
         Random rng = new Random(s.getInt("RNG_SEED"));
 
-        STUDENT_PROB_EAT = s.getDouble("STUDENT_PROB_EAT", STUDENT_PROB_EAT);
-        STUDENT_PROB_HANGOUT = s.getDouble("STUDENT_PROB_HANGOUT", STUDENT_PROB_HANGOUT);
-        STUDENT_PROB_CHAIR = s.getDouble("STUDENT_PROB_CHAIR", STUDENT_PROB_CHAIR);
+        double[] studentProbs = s.getCsvDoubles("STUDENT_PROB" ,3);
+        STUDENT_PROB_EAT = studentProbs[0];
+        STUDENT_PROB_HANGOUT = studentProbs[1];
+        STUDENT_PROB_CHAIR = studentProbs[2];
+
+        System.out.println(STUDENT_PROB_CHAIR);
 
         assert(STUDENT_PROB_EAT + STUDENT_PROB_CHAIR + STUDENT_PROB_HANGOUT == 1);
 
-        PROF_PROB_EAT = s.getDouble("PROF_PROB_EAT", PROF_PROB_EAT);
-        PROF_PROB_HANGOUT = s.getDouble("PROF_PROB_HANGOUT", PROF_PROB_HANGOUT);
-        PROF_PROB_CHAIR = s.getDouble("PROF_PROB_CHAIR", PROF_PROB_CHAIR);
+        double[] profProbs = s.getCsvDoubles("PROF_PROB" ,3);
+        PROF_PROB_EAT = profProbs[0];
+        PROF_PROB_HANGOUT = profProbs[1];
+        PROF_PROB_CHAIR = profProbs[2];
 
         assert(PROF_PROB_EAT + PROF_PROB_HANGOUT + PROF_PROB_CHAIR == 1);
 
-        VISITOR_PROB_EAT = s.getDouble("VISITOR_PROB_EAT", VISITOR_PROB_EAT);
-        VISITOR_PROB_HANGOUT = s.getDouble("VISITOR_PROB_HANGOUT", VISITOR_PROB_HANGOUT);
-        VISITOR_PROB_CHAIR = s.getDouble("VISITOR_PROB_CHAIR", VISITOR_PROB_CHAIR);
+        double[] visitorProbs = s.getCsvDoubles("VISITOR_PROB" ,3);
+        VISITOR_PROB_EAT = visitorProbs[0];
+        VISITOR_PROB_HANGOUT = visitorProbs[1];
+        VISITOR_PROB_CHAIR = visitorProbs[2];
 
         assert(PROF_PROB_EAT + PROF_PROB_HANGOUT + PROF_PROB_CHAIR == 1);
 
