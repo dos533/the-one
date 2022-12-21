@@ -11,10 +11,13 @@ def parseList(s):
 
 def parseDictList(s):
     pat = r'[a-z]+[0-9]+'
-    match = re.findall(pat, s)
+    regex = re.compile(pat, re.S)
 
-    for m in set(match):
-        s = s.replace(m, f"'{m}'")
+    s = re.sub(regex, lambda m: f"'{m.group()}'", s)
+    # match = re.findall(pat, s)
+    #
+    # for m in set(match):
+    #     s = s.replace(m, f"'{m}'")
 
     s = s.replace("=", ":")
 
@@ -27,7 +30,7 @@ def parseDict(s):
 
 def makeHist(d):
     hist = {}
-    Groups = ['student', 'professor', 'barista']
+    Groups = ['student', 'professor', 'barista', 'cleaner', 'visitor']
 
     for k in d:
         hist[k] = {}

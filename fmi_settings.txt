@@ -3,7 +3,8 @@
 #
 
 ## Scenario settings
-Scenario.name = FMI
+Scenario.name = FMI-R%%rumourApp.real%%-S%%Schedule.STUDENT_PROB%%-P%%Schedule.PROF_PROB%%-V%%Schedule.VISITOR_PROB%%
+
 # 43k ~= 12h
 Scenario.endTime = 43200
 Scenario.updateInterval = 1
@@ -26,20 +27,23 @@ firstinterface.transmitRange = 10
 
 # Define new application
 rumourApp.type = RumourApplication
-# RumourID= if val > 0: uniqueID, elif val==0: groupID, else hostAddress
-rumourApp.id = -1
-rumourApp.interval = 50
-rumourApp.sourceRange = 20,30
 rumourApp.destinationRange = 0,0
 rumourApp.msgSize = 5
 rumourApp.passive = false
-# Modelling contact time to tell rumour
+
+# RumourID= if val > 0: uniqueID, elif val==0: groupID, else hostAddress
+rumourApp.id = 0
+# Who sends the message : TODO
+rumourApp.source = 1, 4, 7, 10, 100, 200, 300, 400, 410, 411, 415, 416, 420, 421, 425
+# Modelling contact time to tell rumour (should receive at least n number of messages from the same person)
 rumourApp.receiveThreshold = 10
-rumourApp.sendThreshold = 0.9
-# rumour.real = 0.5  # Realistic nature of rumour
+# Total confidence needed to be infected (Check getConfidence function @ RumourApplication.java)
+rumourApp.sendThreshold = 1.0
+# Realistic nature of rumour
+rumourApp.real = [0.5; 1.0]
 
 # Groups
-Scenario.nrofHostGroups = 7
+Scenario.nrofHostGroups = 6
 
 # common settings for all groups
 Group.router = RumourRouter
@@ -59,32 +63,32 @@ Group.application1 = rumourApp
 
 
 ## legit just have this to render the room....
-Group7.groupID = a
-Group7.nrofInterfaces = 0
-Group7.nrofHosts = 1
-Group7.movementModel =
-Group7.router = PassiveRouter
-
 Group1.groupID = dest
 Group1.nrofHosts = 1
+Group1.nrofInterfaces = 0
 Group1.movementModel = MapBasedMovement
 Group1.nodeLocation = 0,0
 Group1.nrofInterfaces = 0
 
+# 1 - 10
 Group2.groupID = professor
-Group2.nrofHosts = 5
+Group2.nrofHosts = 10
 
+# 11 - 410
 Group3.groupID = student
-Group3.nrofHosts = 100
+Group3.nrofHosts = 400
 
+# 411 - 415
 Group4.groupID = cleaner
-Group4.nrofHosts = 10
+Group4.nrofHosts = 5
 
+# 416 - 420
 Group5.groupID = barista
-Group5.nrofHosts = 3
+Group5.nrofHosts = 5
 
+# 421 - 425
 Group6.groupID = visitor
-Group6.nrofHosts = 1
+Group6.nrofHosts = 5
 
 ## Message creation parameters
 # How many event generators
@@ -92,15 +96,14 @@ Events.nrof = 0
 
 
 # how many reports to load
-Report.nrofReports = 3
+Report.nrofReports = 2
 # length of the warm up period (simulated seconds)
 Report.warmup = 0
 # default directory of reports (can be overridden per Report with output setting)
 Report.reportDir = reports/
 # Report classes to load
-Report.report1 = MessageStatsReport
-Report.report2 = RumourAppReporter
-Report.report3 = ScheduleReporter
+Report.report1 = RumourAppReporter
+Report.report2 = ScheduleReporter
 
 ## Optimization settings -- these affect the speed of the simulation
 ## see World class for details.
@@ -118,6 +121,6 @@ MapBasedMovement.mapFile1 = data/fmi_simplified.wkt
 Schedule.RNG_SEED = 1
 
 # Eat, Hangout, Chair
-Schedule.STUDENT_PROB = 0.2,0.5,0.3
-Schedule.PROF_PROB = 0.05,0.05,0.9
+Schedule.STUDENT_PROB = [0.2,0.5,0.3;0.1,0.3,0.6]
+Schedule.PROF_PROB = [0.05,0.05,0.9;0.2,0.3,0.5]
 Schedule.VISITOR_PROB = 0.1,0.7,0.2
