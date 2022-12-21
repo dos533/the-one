@@ -267,8 +267,6 @@ public class RumourApplication extends Application {
 
 		// Host in source range
 		boolean hostInRange = srcList.contains(host.getAddress());
-		// Host is inside or outside
-//		boolean inLoc = getInLocation(host);
 
 		if (this.lastRumourCreated < 0 && hostInRange){
 			// Rumour created only in the first few tics

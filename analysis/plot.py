@@ -45,13 +45,14 @@ H is the hatch used for identification of the different dataframe"""
     if labels is not None:
         l2 = plt.legend(n, labels, loc=[1.01, 0.1])
     axe.add_artist(l1)
+    axe.set_yscale('log')
     return axe
 
 if __name__ == "__main__":
 
     Groups = ['student', 'professor', 'barista', 'visitor', 'cleaner']
 
-    rumours, received, infected, hop_count = parseReport("../reports/FMI-R0.5_RumourAppReporter.txt")
+    rumours, received, infected, hop_count = parseReport("../reports/FMI-R1.0_RumourAppReporter.txt")
 
     hist_received = makeHist(received)
     hist_infected = makeHist(infected)

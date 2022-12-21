@@ -34,11 +34,11 @@ rumourApp.passive = false
 # RumourID= if val > 0: uniqueID, elif val==0: groupID, else hostAddress
 rumourApp.id = 0
 # Who sends the message
-rumourApp.source = 20, 21, 22, 23, 24, 25, 26, 27, 28, 29
+rumourApp.source = 1, 4, 7, 10, 100, 200, 300, 400, 410, 411, 415, 416, 420, 421, 425
 # Modelling contact time to tell rumour (should receive at least n number of messages from the same person)
 rumourApp.receiveThreshold = 10
 # Total confidence needed to be infected (Check getConfidence function @ RumourApplication.java)
-rumourApp.sendThreshold = 1.5
+rumourApp.sendThreshold = 1.0
 # Realistic nature of rumour
 rumourApp.real = [0.5; 1.0]
 
@@ -70,18 +70,23 @@ Group1.movementModel = MapBasedMovement
 Group1.nodeLocation = 0,0
 Group1.nrofInterfaces = 0
 
+# 1 - 10
 Group2.groupID = professor
 Group2.nrofHosts = 10
 
+# 11 - 410
 Group3.groupID = student
 Group3.nrofHosts = 400
 
+# 411 - 415
 Group4.groupID = cleaner
 Group4.nrofHosts = 5
 
+# 416 - 420
 Group5.groupID = barista
-Group5.nrofHosts = 3
+Group5.nrofHosts = 5
 
+# 421 - 425
 Group6.groupID = visitor
 Group6.nrofHosts = 5
 
@@ -91,15 +96,14 @@ Events.nrof = 0
 
 
 # how many reports to load
-Report.nrofReports = 3
+Report.nrofReports = 2
 # length of the warm up period (simulated seconds)
 Report.warmup = 0
 # default directory of reports (can be overridden per Report with output setting)
 Report.reportDir = reports/
 # Report classes to load
-Report.report1 = MessageStatsReport
-Report.report2 = RumourAppReporter
-Report.report3 = ScheduleReporter
+Report.report1 = RumourAppReporter
+Report.report2 = ScheduleReporter
 
 ## Optimization settings -- these affect the speed of the simulation
 ## see World class for details.
