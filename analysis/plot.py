@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     Groups = ['student', 'professor', 'barista', 'visitor', 'cleaner']
 
-    rumours, received, infected, hop_count = parseReport("../reports/FMI-R1.0_RumourAppReporter.txt")
+    rumours, received, infected, hop_count = parseReport("../reports/FMI-R0.5_RumourAppReporter.txt")
 
     hist_received = makeHist(received)
     hist_infected = makeHist(infected)
