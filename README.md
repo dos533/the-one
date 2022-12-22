@@ -18,9 +18,9 @@ Group 5: Schuler Dominik, Schulte Kilian, Sritharan Suren and Eble Lars
 Run the simulation using one of the four setting files inside `rumour_settings/`:
 
 - `rumour_settings/fmi_settings1.txt`: Normal Day
-- `rumour_settings/fmi_settings1.txt`: Exam
-- `rumour_settings/fmi_settings1.txt`: Normal Day
-- `rumour_settings/fmi_settings1.txt`: Exam
+- `rumour_settings/fmi_settings2.txt`: Exam
+- `rumour_settings/fmi_settings3.txt`: Normal Day
+- `rumour_settings/fmi_settings4.txt`: Exam
 
 ## Inspecting the reports
 
