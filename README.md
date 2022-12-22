@@ -10,7 +10,7 @@ The Opportunistic Network Environment simulator.
 
 # Rumour spreading within scientific institutions
 
-Group 5: Schuler Dominik, Schulte Kilian, Sritharan Suren and Eble Lars
+Group 5: Dominik Schuler, Kilian Schulte, Suren Sritharan and Lars Eble
 
 
 ## Running the simulation
