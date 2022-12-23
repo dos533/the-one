@@ -3,8 +3,9 @@ import matplotlib.cm as cm
 import numpy as np
 import matplotlib.pyplot as plt
 from report import parseReport, makeHist
+from glob import glob
 
-def plot_clustered_stacked(dfall, labels=None, title="multiple stacked bar plot",  H="/", **kwargs):
+def plot_clustered_stacked(dfall, labels=None, title="Spread of rumours for within each group",  H="/", **kwargs):
     """Given a list of dataframes, with identical columns and index, create a clustered stacked bar plot.
 labels is a list of the names of the dataframe, used for the legend
 title is a string for the title of the plot
@@ -35,6 +36,8 @@ H is the hatch used for identification of the different dataframe"""
     axe.set_xticks((np.arange(0, 2 * n_ind, 2) + 1 / float(n_df + 1)) / 2.)
     axe.set_xticklabels(df.index, rotation = 0)
     axe.set_title(title)
+    axe.set_xlabel('Rumour ID')
+    axe.set_ylabel('Frequency')
 
     # Add invisible data to add another legend
     n=[]
@@ -50,41 +53,75 @@ H is the hatch used for identification of the different dataframe"""
 
 if __name__ == "__main__":
 
-    Groups = ['student', 'professor', 'barista', 'visitor', 'cleaner']
+    Groups = ['professor', 'student', 'cleaner', 'barista', 'visitor']
 
-    rumours, received, infected, hop_count = parseReport("../reports/FMI-R0.5_RumourAppReporter.txt")
+    files = list(map(lambda s:s.replace("\\", "/"), glob("../reports/*RumourAppReporter.txt")))
 
-    hist_received = makeHist(received)
-    hist_infected = makeHist(infected)
+    print(files)
+    SHOW = False
 
-    df = []
+    for file in files:
+        print(file)
 
-    for id in received:
-        arr = []
-        for g in Groups:
-            rec = hist_received[id][g] if g in hist_received[id] else 0
-            inf = hist_infected[id][g] if (id in hist_infected and g in hist_infected[id]) else 0
+        rumours, received, infected, hop_count = parseReport(file)
 
-            n_inf = rec - inf
+        hist_received = makeHist(received)
+        hist_infected = makeHist(infected)
 
-            arr.append([inf, n_inf])
+        tot_received = {i : sum(hist_received[i].values()) for i in hist_received}
+        tot_infected = {i : sum(hist_infected[i].values()) for i in hist_infected}
 
-        df.append(arr)
+        tot_received_ = sum(tot_received.values())
+        tot_infected_ = sum(tot_infected.values())
 
-    df = np.array(df)
+        print(rumours)
+        print(hist_received)
+        print(hist_infected)
+        print(tot_received)
+        print(tot_infected)
+        print(tot_received_)
+        print(tot_infected_)
+        print(hop_count)
 
-    print(df.shape)
+        df = []
 
-    ids = received.keys()
+        for id in received:
+            arr = []
+            for g in Groups:
+                rec = hist_received[id][g] if g in hist_received[id] else 0
+                inf = hist_infected[id][g] if (id in hist_infected and g in hist_infected[id]) else 0
 
-    df_plot = []
+                n_inf = rec - inf
 
-    for i in range(len(Groups)):
-        df_i = df[:, i, :]
-        df_i = pd.DataFrame(df_i, index=ids, columns=["inf", "non_inf"])
-        df_plot.append(df_i)
+                arr.append([inf, n_inf])
 
-    # print(df_plot)
+            df.append(arr)
 
-    plot_clustered_stacked(df_plot,Groups)
-    plt.show()
+        df = np.array(df)
+
+        print(df.shape)
+
+        ids = received.keys()
+        ids = [Groups[id-1] for id in ids]
+
+        df_plot = []
+
+        for i in range(len(Groups)):
+            df_i = df[:, i, :]
+            df_i = pd.DataFrame(df_i, index=ids, columns=["infected", "non-infected"])
+            df_plot.append(df_i)
+
+        # print(df_plot)
+        fig = plt.figure()
+
+        plot_clustered_stacked(df_plot,Groups)
+
+        out_name = file.split("/")[-1].strip(".txt")
+        out_name = "../plots/" + out_name + ".png"
+        print(out_name)
+        plt.savefig(out_name, bbox_inches = 'tight')
+
+        if SHOW:
+            plt.show()
+
+        plt.close()

@@ -23,17 +23,48 @@ import java.util.Random;
 public class RumourRouter extends ActiveRouter {
 
 	/** Static variables */
-	private static final HashMap<String, Double> sendProb;
+	private static final HashMap<String, HashMap<String, Double>> sendProb;
 	private static final ArrayList<RoomBase.RoomType> blockedRooms;
 	private static final boolean verbose = false;
 
 	static {
+
 		sendProb = new HashMap<>();
-		sendProb.put("LunchOptions", .9);
-		sendProb.put("LectureRooms", .3);
-		sendProb.put("GatheringRooms", .95);
-		sendProb.put("Wings", .9);
-		sendProb.put("EntranceAndExitOptions", 0.0);
+		sendProb.put("professor", new HashMap<>());
+		sendProb.put("student", new HashMap<>());
+		sendProb.put("cleaner", new HashMap<>());
+		sendProb.put("barista", new HashMap<>());
+		sendProb.put("visitor", new HashMap<>());
+
+		sendProb.get("professor").put("LunchOptions", 0.9);
+		sendProb.get("professor").put("LectureRooms", 0.1);
+		sendProb.get("professor").put("GatheringRooms", 0.95);
+		sendProb.get("professor").put("Wings", 0.9);
+		sendProb.get("professor").put("EntranceAndExitOptions", 0.0);
+
+		sendProb.get("student").put("LunchOptions", 0.9);
+		sendProb.get("student").put("LectureRooms", 0.3);
+		sendProb.get("student").put("GatheringRooms", 0.95);
+		sendProb.get("student").put("Wings", 0.9);
+		sendProb.get("student").put("EntranceAndExitOptions", 0.0);
+
+		sendProb.get("cleaner").put("LunchOptions", 0.8);
+		sendProb.get("cleaner").put("LectureRooms", 0.6);
+		sendProb.get("cleaner").put("GatheringRooms", 0.95);
+		sendProb.get("cleaner").put("Wings", 0.9);
+		sendProb.get("cleaner").put("EntranceAndExitOptions", 0.0);
+
+		sendProb.get("barista").put("LunchOptions", 0.9);
+		sendProb.get("barista").put("LectureRooms", 0.5);
+		sendProb.get("barista").put("GatheringRooms", 0.95);
+		sendProb.get("barista").put("Wings", 0.9);
+		sendProb.get("barista").put("EntranceAndExitOptions", 0.0);
+
+		sendProb.get("visitor").put("LunchOptions", 0.95);
+		sendProb.get("visitor").put("LectureRooms", 0.8);
+		sendProb.get("visitor").put("GatheringRooms", 0.95);
+		sendProb.get("visitor").put("Wings", 0.9);
+		sendProb.get("visitor").put("EntranceAndExitOptions", 0.0);
 
 		blockedRooms = new ArrayList<>();
 		blockedRooms.add(RoomBase.RoomType.Subway);
@@ -185,16 +216,17 @@ public class RumourRouter extends ActiveRouter {
 	 */
 	public double getSendProbability(){
 		double chatProb;
-		MovementModel movement = this.getHost().getMovement();
-//		if (movement instanceof RoomBasedMovement){
-			RoomBase.RoomType roomCategory = ((RoomBasedMovement) movement).getRoomType();
-			String cat = RoomBase.getRoomCategory(roomCategory);
-			chatProb = sendProb.get(cat);
+		String groupId;
+		MovementModel movement;
 
-			if (verbose) System.out.println("Chat prob: " + chatProb);
-//		}else{
-//			chatProb = 1;
-//		}
+		groupId = this.getHost().groupId;
+		movement = this.getHost().getMovement();
+		RoomBase.RoomType roomCategory = ((RoomBasedMovement) movement).getRoomType();
+		String cat = RoomBase.getRoomCategory(roomCategory);
+
+		chatProb = sendProb.get(groupId).get(cat);
+
+		if (verbose) System.out.println("Chat prob: " + chatProb);
 
 		return chatProb;
 	}
