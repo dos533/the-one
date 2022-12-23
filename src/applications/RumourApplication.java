@@ -104,15 +104,15 @@ public class RumourApplication extends Application {
 
 		trustMap.get("barista").put("student", 0.5);
 		trustMap.get("barista").put("professor", 0.8);
-		trustMap.get("barista").put("cleaner", 0.8);
-		trustMap.get("barista").put("barista", 0.6);
+		trustMap.get("barista").put("cleaner", 0.6);
+		trustMap.get("barista").put("barista", 0.8);
 		trustMap.get("barista").put("visitor", 0.7);
 
 		trustMap.get("visitor").put("student", 0.5);
 		trustMap.get("visitor").put("professor", 0.8);
-		trustMap.get("visitor").put("cleaner", 0.8);
+		trustMap.get("visitor").put("cleaner", 0.6);
 		trustMap.get("visitor").put("barista", 0.6);
-		trustMap.get("visitor").put("visitor", 0.7);
+		trustMap.get("visitor").put("visitor", 0.8);
 	}
 
 	/**

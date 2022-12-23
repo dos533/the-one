@@ -3,7 +3,7 @@
 #
 
 ## Scenario settings
-Scenario.name = FMI-R%%rumourApp.real%%-S%%Schedule.STUDENT_PROB%%-P%%Schedule.PROF_PROB%%-V%%Schedule.VISITOR_PROB%%
+Scenario.name = FMI-schedule-S%%Schedule.STUDENT_PROB%%-P%%Schedule.PROF_PROB%%-V%%Schedule.VISITOR_PROB%%
 
 # 43k ~= 12h
 Scenario.endTime = 43200
@@ -34,13 +34,13 @@ rumourApp.passive = false
 # RumourID= if val > 0: uniqueID, elif val==0: groupID, else hostAddress
 rumourApp.id = 0
 # Who sends the message
-rumourApp.source = 1, 10, 100, 400, 410, 415, 420, 425
+rumourApp.source = 1, 4, 7, 10, 100, 200, 300, 400, 410, 411, 415, 416, 420, 421, 425
 # Modelling contact time to tell rumour (should receive at least n number of messages from the same person)
 rumourApp.receiveThreshold = 10
 # Total confidence needed to be infected (Check getConfidence function @ RumourApplication.java)
 rumourApp.sendThreshold = 1.0
 # Realistic nature of rumour
-rumourApp.real = [0.5; 1.0]
+rumourApp.real = 1.0
 
 # Groups
 Scenario.nrofHostGroups = 6

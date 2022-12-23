@@ -65,10 +65,10 @@ def parseReport(file_name = "../reports/FMI_RumourAppReporter.txt"):
     infected = parseDictList(d['Infected'])
     hop_count = parseDict(d['HopCount'])
 
-    print(rumours)
-    print(received)
-    print(infected)
-    print(hop_count)
+    # print(rumours)
+    # print(received)
+    # print(infected)
+    # print(hop_count)
 
     return rumours, received, infected, hop_count
 
